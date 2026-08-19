@@ -20,6 +20,8 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple domain object representing a list of veterinarians. Mostly here to be used for
@@ -29,14 +31,18 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Vets {
+private static final Logger log = LoggerFactory.getLogger(Vets.class);
 
 	private List<Vet> vets;
 
 	@XmlElement
 	public List<Vet> getVetList() {
+		log.debug(">>> Entering getVetList()");
 		if (vets == null) {
 			vets = new ArrayList<>();
 		}
+		log.debug("getVetList(): vets → {}", vets);
+		log.debug("<<< Exiting getVetList()");
 		return vets;
 	}
 
