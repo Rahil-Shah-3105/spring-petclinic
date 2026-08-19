@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,40 +36,55 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
 	public VetController(VetRepository vetRepository) {
+		log.debug(">>> Entering VetController(vetRepository={})", vetRepository);
 		this.vetRepository = vetRepository;
+		log.debug("<<< Exiting VetController(vetRepository={})", vetRepository);
 	}
 
 	@GetMapping("/vets.html")
 	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
+		log.debug(">>> Entering showVetList(model={})", model);
 		Page<Vet> paginated = findPaginated(page);
+		log.debug("showVetList(model={}): paginated → {}", model, paginated);
+		log.debug("<<< Exiting showVetList(model={})", model);
 		return addPaginationModel(page, paginated, model);
 	}
 
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
+		log.debug(">>> Entering addPaginationModel(page={},paginated={},model={})", page, paginated, model);
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
+		log.debug("addPaginationModel(page={},paginated={},model={}): listVets → {}", page, paginated, model, listVets);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
+		log.debug("<<< Exiting addPaginationModel(page={},paginated={},model={})", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.debug(">>> Entering findPaginated(page={})", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.debug("findPaginated(page={}): pageable → {}", page, pageable);
+		log.debug("<<< Exiting findPaginated(page={})", page);
 		return vetRepository.findAll(pageable);
 	}
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
+		log.debug(">>> Entering showResourcesVetList()");
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
+		log.debug("showResourcesVetList(): vets → {}", vets);
 		vets.getVetList().addAll(this.vetRepository.findAll());
+		log.debug("<<< Exiting showResourcesVetList()");
 		return vets;
 	}
 

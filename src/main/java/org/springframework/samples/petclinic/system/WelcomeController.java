@@ -18,12 +18,17 @@ package org.springframework.samples.petclinic.system;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 class WelcomeController {
+private static final Logger log = LoggerFactory.getLogger(WelcomeController.class);
 
 	@GetMapping("/")
 	public String welcome() {
+		log.debug(">>> Entering welcome()");
+		log.debug("<<< Exiting welcome()");
 		return "welcome";
 	}
 
