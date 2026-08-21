@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,22 +49,28 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
 	private final OwnerRepository owners;
 
 	public OwnerController(OwnerRepository owners) {
+		log.debug(">>> Entering OwnerController(owners={})", owners);
 		this.owners = owners;
+		log.debug("<<< Exiting OwnerController(owners={})", owners);
 	}
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.debug(">>> Entering setAllowedFields(dataBinder={})", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.debug("<<< Exiting setAllowedFields(dataBinder={})", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.debug(">>> Entering findOwner()");
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -71,11 +79,14 @@ class OwnerController {
 
 	@GetMapping("/owners/new")
 	public String initCreationForm() {
+		log.debug(">>> Entering initCreationForm()");
+		log.debug("<<< Exiting initCreationForm()");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
+		log.debug(">>> Entering processCreationForm(owner={},result={},redirectAttributes={})", owner, result, redirectAttributes);
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -83,11 +94,14 @@ class OwnerController {
 
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.debug("<<< Exiting processCreationForm(owner={},result={},redirectAttributes={})", owner, result, redirectAttributes);
 		return "redirect:/owners/" + owner.getId();
 	}
 
 	@GetMapping("/owners/find")
 	public String initFindForm() {
+		log.debug(">>> Entering initFindForm()");
+		log.debug("<<< Exiting initFindForm()");
 		return "owners/findOwners";
 	}
 
@@ -114,6 +128,7 @@ class OwnerController {
 		if (ownersResults.getTotalElements() == 1) {
 			// 1 owner found
 			owner = ownersResults.iterator().next();
+			log.debug("processFindForm(owner={},result={},model={}): owner → {}", owner, result, model, owner);
 			return "redirect:/owners/" + owner.getId();
 		}
 
@@ -122,28 +137,37 @@ class OwnerController {
 	}
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+		log.debug(">>> Entering addPaginationModel(page={},model={},paginated={})", page, model, paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
+		log.debug("addPaginationModel(page={},model={},paginated={}): listOwners → {}", page, model, paginated, listOwners);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
+		log.debug("<<< Exiting addPaginationModel(page={},model={},paginated={})", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.debug(">>> Entering findPaginatedForOwnersLastName(page={},lastname={})", page, lastname);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.debug("findPaginatedForOwnersLastName(page={},lastname={}): pageable → {}", page, lastname, pageable);
+		log.debug("<<< Exiting findPaginatedForOwnersLastName(page={},lastname={})", page, lastname);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.debug(">>> Entering initUpdateOwnerForm()");
+		log.debug("<<< Exiting initUpdateOwnerForm()");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			RedirectAttributes redirectAttributes) {
+			log.debug(">>> Entering processUpdateOwnerForm(owner={},result={},ownerId={},redirectAttributes={})", owner, result, ownerId, redirectAttributes);
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in updating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -156,8 +180,10 @@ class OwnerController {
 		}
 
 		owner.setId(ownerId);
+		log.debug("processUpdateOwnerForm(owner={},result={},ownerId={},redirectAttributes={}): owner → {}", owner, result, ownerId, redirectAttributes, owner);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.debug("<<< Exiting processUpdateOwnerForm(owner={},result={},ownerId={},redirectAttributes={})", owner, result, ownerId, redirectAttributes);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -168,11 +194,17 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.debug(">>> Entering showOwner(ownerId={})", ownerId);
+		long start = System.currentTimeMillis();
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId)={}: find query executed in {} ms", ownerId, (System.currentTimeMillis() - start));
+				log.debug("showOwner(ownerId={}): mav → {}", ownerId, mav);
+				log.debug("showOwner(ownerId={}): optionalOwner → {}", ownerId, optionalOwner);
 		mav.addObject(owner);
+		log.debug("<<< Exiting showOwner(ownerId={})", ownerId);
 		return mav;
 	}
 

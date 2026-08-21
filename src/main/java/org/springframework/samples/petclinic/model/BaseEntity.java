@@ -21,6 +21,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object with an id property. Used as a base class for objects
@@ -31,20 +33,27 @@ import jakarta.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 public class BaseEntity implements Serializable {
+private static final Logger log = LoggerFactory.getLogger(BaseEntity.class);
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	public Integer getId() {
+		log.debug(">>> Entering getId()");
+		log.debug("<<< Exiting getId()");
 		return id;
 	}
 
 	public void setId(Integer id) {
+		log.debug(">>> Entering setId(id={})", id);
 		this.id = id;
+		log.debug("<<< Exiting setId(id={})", id);
 	}
 
 	public boolean isNew() {
+		log.debug(">>> Entering isNew()");
+		log.debug("<<< Exiting isNew()");
 		return this.id == null;
 	}
 
