@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,16 +43,21 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
 	public VisitController(OwnerRepository owners) {
+		log.debug(">>> Entering VisitController(owners={})", owners);
 		this.owners = owners;
+		log.debug("<<< Exiting VisitController(owners={})", owners);
 	}
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.debug(">>> Entering setAllowedFields(dataBinder={})", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.debug("<<< Exiting setAllowedFields(dataBinder={})", dataBinder);
 	}
 
 	/**
@@ -63,12 +70,18 @@ class VisitController {
 	@ModelAttribute("visit")
 	public Visit loadPetWithVisit(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			Map<String, Object> model) {
+			log.debug(">>> Entering loadPetWithVisit(ownerId={},petId={},model={})", ownerId, petId, model);
+			log.info("loadPetWithVisit(ownerId,petId,model)={},{},{}: find query executed in {} ms", ownerId, petId, model, (System.currentTimeMillis() - start));
+			log.debug("<<< Exiting loadPetWithVisit(ownerId={},petId={},model={})", ownerId, petId, model);
 		Optional<Owner> optionalOwner = owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.debug("loadPetWithVisit(ownerId={},petId={},model={}): optionalOwner → {}", ownerId, petId, model, optionalOwner);
 
 		Pet pet = owner.getPet(petId);
+		log.debug("loadPetWithVisit(ownerId={},petId={},model={}): pet → {}", ownerId, petId, model, pet);
 		if (pet == null) {
+			log.warn("Throwing IllegalArgumentException from loadPetWithVisit(ownerId={},petId={},model={})", ownerId, petId, model);
 			throw new IllegalArgumentException(
 					"Pet with id " + petId + " not found for owner with id " + ownerId + ".");
 		}
@@ -76,12 +89,15 @@ class VisitController {
 		model.put("owner", owner);
 
 		Visit visit = new Visit();
+		log.debug("loadPetWithVisit(ownerId={},petId={},model={}): visit → {}", ownerId, petId, model, visit);
 		pet.addVisit(visit);
 		return visit;
 	}
 
 	@ModelAttribute("minVisitDate")
 	public LocalDate minVisitDate() {
+		log.debug(">>> Entering minVisitDate()");
+		log.debug("<<< Exiting minVisitDate()");
 		return LocalDate.now().plusDays(1);
 	}
 
@@ -89,6 +105,8 @@ class VisitController {
 	// called
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String initNewVisitForm() {
+		log.debug(">>> Entering initNewVisitForm()");
+		log.debug("<<< Exiting initNewVisitForm()");
 		return "pets/createOrUpdateVisitForm";
 	}
 
@@ -97,6 +115,7 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result, RedirectAttributes redirectAttributes) {
+			log.debug(">>> Entering processNewVisitForm(owner={},petId={},visit={},result={},redirectAttributes={})", owner, petId, visit, result, redirectAttributes);
 		if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
 			result.rejectValue("date", "typeMismatch.visitDate");
 		}
@@ -108,6 +127,7 @@ class VisitController {
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		log.debug("<<< Exiting processNewVisitForm(owner={},petId={},visit={},result={},redirectAttributes={})", owner, petId, visit, result, redirectAttributes);
 		return "redirect:/owners/{ownerId}";
 	}
 
