@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,6 +53,7 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.warn("setAllowedFields(dataBinder)={}): EUAIACT-AUDIT: State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
@@ -75,6 +79,7 @@ class VisitController {
 		model.put("pet", pet);
 		model.put("owner", owner);
 
+		log.warn("loadPetWithVisit(ownerId,petId,model)={},{},{}: EUAIACT-AUDIT: Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		Visit visit = new Visit();
 		pet.addVisit(visit);
 		return visit;
@@ -106,6 +111,7 @@ class VisitController {
 		}
 
 		owner.addVisit(petId, visit);
+		log.warn("processNewVisitForm(owner,petId,visit,result,redirectAttributes)={},{},{},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
 		return "redirect:/owners/{ownerId}";
