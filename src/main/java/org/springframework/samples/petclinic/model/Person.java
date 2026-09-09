@@ -19,6 +19,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an person.
@@ -27,6 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @MappedSuperclass
 public class Person extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Person.class);
 
 	@Column(length = 30)
 	@Size(max = 30)
@@ -43,6 +46,7 @@ public class Person extends BaseEntity {
 	}
 
 	public void setFirstName(String firstName) {
+		log.warn("setFirstName(firstName)={}): COAI-AUDIT: State change recorded for the audit trail", firstName);
 		this.firstName = firstName;
 	}
 
@@ -51,6 +55,7 @@ public class Person extends BaseEntity {
 	}
 
 	public void setLastName(String lastName) {
+		log.warn("setLastName(lastName)={}): COAI-AUDIT: State change recorded for the audit trail", lastName);
 		this.lastName = lastName;
 	}
 
