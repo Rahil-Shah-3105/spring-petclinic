@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -69,6 +72,7 @@ class PetController {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("findOwner(ownerId)={}): NISTAIRMF-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -83,6 +87,7 @@ class PetController {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("findPet(ownerId)={}): NISTAIRMF-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -133,11 +138,13 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.warn("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: NISTAIRMF-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.warn("initUpdateForm()=null): NISTAIRMF-AUDIT: State change recorded for the audit trail");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -175,6 +182,7 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.warn("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: NISTAIRMF-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -196,6 +204,7 @@ class PetController {
 		else {
 			owner.addPet(pet);
 		}
+		log.warn("updatePetDetails(owner,pet)={},{}: NISTAIRMF-AUDIT: State change recorded for the audit trail {}", owner, pet, id);
 		this.owners.saveAndFlush(owner);
 	}
 
