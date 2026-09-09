@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -133,11 +136,13 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -175,6 +180,8 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC8.1]: Change management operation performed", owner, pet, result, redirectAttributes);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -197,10 +204,12 @@ class PetController {
 			owner.addPet(pet);
 		}
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner,pet)={},{}: SOC2-AUDIT [CC8.1]: Change management operation performed", owner, pet);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
 		String message = ex.getMessage();
+		log.info("isDuplicatePetNameViolation(ex)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", ex);
 		return message != null && message.toLowerCase().contains("unique_owner_pet_name");
 	}
 
