@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -138,6 +141,7 @@ class PetController {
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm()=null): NERCCIP-AUDIT: Change management operation performed");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -175,6 +179,7 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: NERCCIP-AUDIT: Change management operation performed", owner, pet, result, redirectAttributes);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -197,6 +202,7 @@ class PetController {
 			owner.addPet(pet);
 		}
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner,pet)={},{}: NERCCIP-AUDIT: Change management operation performed", owner, pet);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
