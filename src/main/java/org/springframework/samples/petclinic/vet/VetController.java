@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -44,6 +47,7 @@ class VetController {
 	@GetMapping("/vets.html")
 	public String showVetList(@RequestParam(defaultValue = "1") int page, Model model) {
 		Page<Vet> paginated = findPaginated(page);
+		log.warn("showVetList(model)={}): M2614-AUDIT: Record access recorded for the audit trail", model);
 		return addPaginationModel(page, paginated, model);
 	}
 
@@ -53,12 +57,14 @@ class VetController {
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
+		log.warn("addPaginationModel(page,paginated,model)={},{},{}: M2614-AUDIT: State change recorded for the audit trail", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.warn("findPaginated(page)={}): M2614-AUDIT: Record access recorded for the audit trail", page);
 		return vetRepository.findAll(pageable);
 	}
 
@@ -67,6 +73,8 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
+		log.warn("showResourcesVetList()=null): M2614-AUDIT: Record access recorded for the audit trail");
+		log.info("showResourcesVetList()=null): SOC2-AUDIT [CC7.2]: System operation completed");
 		vets.getVetList().addAll(this.vetRepository.findAll());
 		return vets;
 	}

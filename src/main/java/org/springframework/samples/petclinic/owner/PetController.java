@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -69,6 +72,7 @@ class PetController {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("findOwner(ownerId)={}): M2614-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -83,6 +87,7 @@ class PetController {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("findPet(ownerId)={}): M2614-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -121,23 +126,29 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 		try {
 			owner.addPet(pet);
 			this.owners.saveAndFlush(owner);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.warn("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: PHI integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm()=null): SOC2-AUDIT [CC8.1]: Change management operation performed");
+		log.warn("initUpdateForm()=null): M2614-AUDIT: State change recorded for the audit trail");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -160,21 +171,27 @@ class PetController {
 			result.rejectValue("birthDate", "typeMismatch.birthDate");
 		}
 
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: Change management operation performed", owner, pet, result, redirectAttributes);
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 
+		log.warn("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		try {
 			updatePetDetails(owner, pet);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: M2614-AUDIT: PHI integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC6.6]: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOC2-AUDIT [CC8.1]: Change management operation performed", owner, pet, result, redirectAttributes);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -187,6 +204,7 @@ class PetController {
 		Integer id = pet.getId();
 		Assert.state(id != null, "'pet.getId()' must not be null");
 		Pet existingPet = owner.getPet(id);
+		log.info("updatePetDetails(owner,pet)={},{}: M2614-AUDIT: Change management operation performed", owner, pet);
 		if (existingPet != null) {
 			// Update existing pet's properties
 			existingPet.setName(pet.getName());
@@ -194,13 +212,18 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.warn("updatePetDetails(owner,pet)={},{}: M2614-AUDIT: State change recorded for the audit trail {}", owner, pet, id);
 			owner.addPet(pet);
 		}
+		log.info("updatePetDetails(owner,pet)={},{}: SOC2-AUDIT [CC8.1]: Change management operation performed", owner, pet);
 		this.owners.saveAndFlush(owner);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
+		log.info("isDuplicatePetNameViolation(ex)={}): M2614-AUDIT: Database transaction completed", ex);
 		String message = ex.getMessage();
+		log.info("isDuplicatePetNameViolation(ex)={}): M2614-AUDIT: Data integrity check performed", ex);
+		log.info("isDuplicatePetNameViolation(ex)={}): SOC2-AUDIT [CC6.6]: Database transaction completed", ex);
 		return message != null && message.toLowerCase().contains("unique_owner_pet_name");
 	}
 
