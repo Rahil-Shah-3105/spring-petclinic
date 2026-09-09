@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -72,6 +75,7 @@ public class Owner extends Person {
 
 	public void setAddress(String address) {
 		this.address = address;
+		log.warn("setAddress(address)={}): ISO27701-AUDIT: State change recorded for the audit trail", address);
 	}
 
 	public String getCity() {
@@ -80,6 +84,7 @@ public class Owner extends Person {
 
 	public void setCity(String city) {
 		this.city = city;
+		log.warn("setCity(city)={}): ISO27701-AUDIT: State change recorded for the audit trail", city);
 	}
 
 	public String getTelephone() {
@@ -88,6 +93,7 @@ public class Owner extends Person {
 
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
+		log.warn("setTelephone(telephone)={}): ISO27701-AUDIT: State change recorded for the audit trail", telephone);
 	}
 
 	public List<Pet> getPets() {
@@ -97,6 +103,7 @@ public class Owner extends Person {
 	public void addPet(Pet pet) {
 		if (pet.isNew()) {
 			getPets().add(pet);
+			log.warn("addPet(pet)={}): ISO27701-AUDIT: State change recorded for the audit trail", pet);
 		}
 	}
 
@@ -106,6 +113,7 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.warn("getPet(name)={}): ISO27701-AUDIT: Record access recorded for the audit trail", name);
 		return getPet(name, false);
 	}
 
@@ -170,6 +178,7 @@ public class Owner extends Person {
 
 		Assert.notNull(pet, "Invalid Pet identifier!");
 
+		log.warn("addVisit(petId,visit)={},{}: ISO27701-AUDIT: State change recorded for the audit trail {}", petId, visit, petId);
 		pet.addVisit(visit);
 	}
 
