@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -59,10 +62,12 @@ class OwnerController {
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.warn("setAllowedFields(dataBinder)={}): ISO27001-AUDIT: State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.warn("findOwner()=null): ISO27001-AUDIT: Record access recorded for the audit trail");
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -83,11 +88,13 @@ class OwnerController {
 
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.warn("processCreationForm(owner,result,redirectAttributes)={},{},{}: ISO27001-AUDIT: State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
 	@GetMapping("/owners/find")
 	public String initFindForm() {
+		log.warn("initFindForm()=null): ISO27001-AUDIT: Record access recorded for the audit trail");
 		return "owners/findOwners";
 	}
 
@@ -127,17 +134,21 @@ class OwnerController {
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
+		log.warn("addPaginationModel(page,model,paginated)={},{},{}: ISO27001-AUDIT: State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.warn("findPaginatedForOwnersLastName(page,lastname)={},{}: ISO27001-AUDIT: Record access recorded for the audit trail", page, lastname);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.info("initUpdateOwnerForm()=null): ISO27001-AUDIT: Change management operation performed");
+		log.warn("initUpdateOwnerForm()=null): ISO27001-AUDIT: State change recorded for the audit trail");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -158,6 +169,8 @@ class OwnerController {
 		owner.setId(ownerId);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner,result,ownerId,redirectAttributes)={},{},{},{}: ISO27001-AUDIT: Change management operation performed", owner, result, ownerId, redirectAttributes);
+		log.warn("processUpdateOwnerForm(owner,result,ownerId,redirectAttributes)={},{},{},{}: ISO27001-AUDIT: State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -173,6 +186,7 @@ class OwnerController {
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 		mav.addObject(owner);
+		log.warn("showOwner(ownerId)={}): ISO27001-AUDIT: State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 
