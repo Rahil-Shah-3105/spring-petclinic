@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.cache.configuration.MutableConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cache configuration intended for caches providing the JCache API. This configuration
@@ -31,9 +33,11 @@ import javax.cache.configuration.MutableConfiguration;
 @Configuration(proxyBeanMethods = false)
 @EnableCaching
 class CacheConfiguration {
+private static final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
 	@Bean
 	public JCacheManagerCustomizer petclinicCacheConfigurationCustomizer() {
+		log.info("petclinicCacheConfigurationCustomizer()=null): DORA-AUDIT: Change management operation performed");
 		return cm -> cm.createCache("vets", cacheConfiguration());
 	}
 
@@ -47,6 +51,7 @@ class CacheConfiguration {
 	 * mechanism that is provided by the selected JCache implementation.
 	 */
 	private javax.cache.configuration.Configuration<Object, Object> cacheConfiguration() {
+		log.info("cacheConfiguration()=null): DORA-AUDIT: Change management operation performed");
 		return new MutableConfiguration<>().setStatisticsEnabled(true);
 	}
 
