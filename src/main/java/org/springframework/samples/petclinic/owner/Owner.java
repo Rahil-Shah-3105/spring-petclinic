@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -67,34 +70,44 @@ public class Owner extends Person {
 	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
+		log.info("ENTERING: getAddress() method");
+		log.info("getAddress()=null): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 		return this.address;
 	}
 
 	public void setAddress(String address) {
+		log.warn("ENTERING: setAddress() method");
 		this.address = address;
 	}
 
 	public String getCity() {
+		log.warn("ENTERING: getCity() method");
 		return this.city;
 	}
 
 	public void setCity(String city) {
+		log.warn("ENTERING: setCity() method");
 		this.city = city;
 	}
 
 	public String getTelephone() {
+		log.info("getTelephone()=null): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 		return this.telephone;
 	}
 
 	public void setTelephone(String telephone) {
+		log.warn("ENTERING: setTelephone() method");
 		this.telephone = telephone;
 	}
 
 	public List<Pet> getPets() {
+		log.warn("ENTERING: getPets() method");
 		return this.pets;
 	}
 
 	public void addPet(Pet pet) {
+		log.warn("addPet(pet)={}): GDPR-AUDIT: State change recorded for the audit trail", pet);
+		log.info("ENTERING: addPet() method");
 		if (pet.isNew()) {
 			getPets().add(pet);
 		}
@@ -106,6 +119,8 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.info("ENTERING: getPet() method");
+		log.info("getPet(name)={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", name);
 		return getPet(name, false);
 	}
 
@@ -123,6 +138,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.warn("getPet(id)={}): GDPR-AUDIT: Record access recorded for the audit trail {}", id, id);
 		return null;
 	}
 
@@ -141,11 +157,13 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.info("getPet(name,ignoreNew)={},{}: GDPR-AUDIT [Art.30]: Personal data processing activity completed", name, ignoreNew);
 		return null;
 	}
 
 	@Override
 	public String toString() {
+		log.warn("ENTERING: toString() method");
 		return new ToStringCreator(this).append("id", this.getId())
 			.append("new", this.isNew())
 			.append("lastName", this.getLastName())
@@ -163,6 +181,7 @@ public class Owner extends Person {
 	 */
 	public void addVisit(Integer petId, Visit visit) {
 
+		log.info("ENTERING: addVisit() method");
 		Assert.notNull(petId, "Pet identifier must not be null!");
 		Assert.notNull(visit, "Visit must not be null!");
 
@@ -171,6 +190,7 @@ public class Owner extends Person {
 		Assert.notNull(pet, "Invalid Pet identifier!");
 
 		pet.addVisit(visit);
+		log.warn("addVisit(petId,visit)={},{}: GDPR-AUDIT: State change recorded for the audit trail {}", petId, visit, petId);
 	}
 
 }

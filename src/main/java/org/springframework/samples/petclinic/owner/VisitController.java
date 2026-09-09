@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,15 +43,18 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
 	public VisitController(OwnerRepository owners) {
+		log.warn("ENTERING: VisitController() method");
 		this.owners = owners;
 	}
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.warn("ENTERING: setAllowedFields() method");
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
@@ -63,6 +68,7 @@ class VisitController {
 	@ModelAttribute("visit")
 	public Visit loadPetWithVisit(@PathVariable("ownerId") int ownerId, @PathVariable("petId") int petId,
 			Map<String, Object> model) {
+			log.info("ENTERING: loadPetWithVisit() method");
 		Optional<Owner> optionalOwner = owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
@@ -77,11 +83,13 @@ class VisitController {
 
 		Visit visit = new Visit();
 		pet.addVisit(visit);
+		log.warn("loadPetWithVisit(ownerId,petId,model)={},{},{}: GDPR-AUDIT: Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		return visit;
 	}
 
 	@ModelAttribute("minVisitDate")
 	public LocalDate minVisitDate() {
+		log.warn("ENTERING: minVisitDate() method");
 		return LocalDate.now().plusDays(1);
 	}
 
@@ -89,6 +97,7 @@ class VisitController {
 	// called
 	@GetMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String initNewVisitForm() {
+		log.warn("ENTERING: initNewVisitForm() method");
 		return "pets/createOrUpdateVisitForm";
 	}
 
@@ -97,6 +106,7 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result, RedirectAttributes redirectAttributes) {
+			log.info("ENTERING: processNewVisitForm() method");
 		if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
 			result.rejectValue("date", "typeMismatch.visitDate");
 		}
@@ -108,6 +118,8 @@ class VisitController {
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		log.warn("processNewVisitForm(owner,petId,visit,result,redirectAttributes)={},{},{},{},{}: GDPR-AUDIT: State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner,petId,visit,result,redirectAttributes)={},{},{},{},{}: GDPR-AUDIT [Art.30]: Personal data processing operation recorded {}", owner, petId, visit, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 

@@ -9,6 +9,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configures internationalization (i18n) support for the application.
@@ -23,6 +25,7 @@ import java.util.Locale;
 @Configuration
 @SuppressWarnings("unused")
 public class WebConfiguration implements WebMvcConfigurer {
+private static final Logger log = LoggerFactory.getLogger(WebConfiguration.class);
 
 	/**
 	 * Uses session storage to remember the user’s language setting across requests.
@@ -31,6 +34,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 	 */
 	@Bean
 	public LocaleResolver localeResolver() {
+		log.info("localeResolver()=null): GDPR-AUDIT: Session management operation performed");
+		log.info("ENTERING: localeResolver() method");
 		SessionLocaleResolver resolver = new SessionLocaleResolver();
 		resolver.setDefaultLocale(Locale.ENGLISH);
 		return resolver;
@@ -43,6 +48,8 @@ public class WebConfiguration implements WebMvcConfigurer {
 	 */
 	@Bean
 	public LocaleChangeInterceptor localeChangeInterceptor() {
+		log.info("localeChangeInterceptor()=null): GDPR-AUDIT [Art.5]: Personal data processing activity completed");
+		log.info("ENTERING: localeChangeInterceptor() method");
 		LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
 		interceptor.setParamName("lang");
 		return interceptor;
@@ -54,6 +61,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 	 */
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		log.warn("ENTERING: addInterceptors() method");
 		registry.addInterceptor(localeChangeInterceptor());
 	}
 

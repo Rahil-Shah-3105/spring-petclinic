@@ -24,6 +24,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a visit.
@@ -34,6 +36,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "visits")
 public class Visit extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Visit.class);
 
 	@Column(name = "visit_date")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -46,22 +49,27 @@ public class Visit extends BaseEntity {
 	 * Creates a new instance of Visit for tomorrow
 	 */
 	public Visit() {
+		log.warn("ENTERING: Visit() method");
 		this.date = LocalDate.now().plusDays(1);
 	}
 
 	public LocalDate getDate() {
+		log.warn("ENTERING: getDate() method");
 		return this.date;
 	}
 
 	public void setDate(LocalDate date) {
+		log.warn("ENTERING: setDate() method");
 		this.date = date;
 	}
 
 	public String getDescription() {
+		log.warn("ENTERING: getDescription() method");
 		return this.description;
 	}
 
 	public void setDescription(String description) {
+		log.warn("ENTERING: setDescription() method");
 		this.description = description;
 	}
 

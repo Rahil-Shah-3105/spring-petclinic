@@ -19,6 +19,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an person.
@@ -27,6 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @MappedSuperclass
 public class Person extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Person.class);
 
 	@Column(length = 30)
 	@Size(max = 30)
@@ -39,18 +42,23 @@ public class Person extends BaseEntity {
 	private String lastName;
 
 	public String getFirstName() {
+		log.info("ENTERING: getFirstName() method");
+		log.info("getFirstName()=null): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 		return this.firstName;
 	}
 
 	public void setFirstName(String firstName) {
+		log.warn("ENTERING: setFirstName() method");
 		this.firstName = firstName;
 	}
 
 	public String getLastName() {
+		log.info("getLastName()=null): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 		return this.lastName;
 	}
 
 	public void setLastName(String lastName) {
+		log.warn("ENTERING: setLastName() method");
 		this.lastName = lastName;
 	}
 

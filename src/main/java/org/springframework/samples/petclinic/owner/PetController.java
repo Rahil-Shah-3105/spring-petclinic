@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -55,17 +58,21 @@ class PetController {
 	private final PetTypeRepository types;
 
 	public PetController(OwnerRepository owners, PetTypeRepository types) {
+		log.warn("ENTERING: PetController() method");
 		this.owners = owners;
 		this.types = types;
 	}
 
 	@ModelAttribute("types")
 	public Collection<PetType> populatePetTypes() {
+		log.warn("ENTERING: populatePetTypes() method");
 		return this.types.findPetTypes();
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
+		log.warn("findOwner(ownerId)={}): GDPR-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("ENTERING: findOwner() method");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
@@ -75,24 +82,29 @@ class PetController {
 	@ModelAttribute("pet")
 	public Pet findPet(@PathVariable("ownerId") int ownerId,
 			@PathVariable(name = "petId", required = false) Integer petId) {
+			log.info("ENTERING: findPet() method");
 
 		if (petId == null) {
 			return new Pet();
 		}
 
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findPet(ownerId)={}): GDPR-AUDIT [Art.30]: Personal data processing activity completed", ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("findPet(ownerId)={}): GDPR-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner.getPet(petId);
 	}
 
 	@InitBinder("owner")
 	public void initOwnerBinder(WebDataBinder dataBinder) {
+		log.warn("ENTERING: initOwnerBinder() method");
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@InitBinder("pet")
 	public void initPetBinder(WebDataBinder dataBinder) {
+		log.warn("ENTERING: initPetBinder() method");
 		dataBinder.setValidator(new PetValidator());
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
@@ -100,6 +112,7 @@ class PetController {
 	@GetMapping("/pets/new")
 	public String initCreationForm(Owner owner, ModelMap model) {
 		Pet pet = new Pet();
+		log.info("ENTERING: initCreationForm() method");
 		owner.addPet(pet);
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
@@ -107,6 +120,7 @@ class PetController {
 	@PostMapping("/pets/new")
 	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result,
 			RedirectAttributes redirectAttributes) {
+			log.info("ENTERING: processCreationForm() method");
 
 		if (StringUtils.hasText(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
@@ -133,17 +147,20 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.warn("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: GDPR-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.warn("ENTERING: initUpdateForm() method");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping("/pets/{petId}/edit")
 	public String processUpdateForm(Owner owner, @Valid Pet pet, BindingResult result,
 			RedirectAttributes redirectAttributes) {
+			log.info("ENTERING: processUpdateForm() method");
 
 		String petName = pet.getName();
 
@@ -174,6 +191,9 @@ class PetController {
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.warn("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: GDPR-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.warn("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: GDPR-AUDIT [Art.15]: Data subject right exercised for data subject {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: GDPR-AUDIT [Art.5]: Personal data processing operation recorded {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
 		return "redirect:/owners/{ownerId}";
 	}
@@ -185,6 +205,7 @@ class PetController {
 	 */
 	private void updatePetDetails(Owner owner, Pet pet) {
 		Integer id = pet.getId();
+		log.info("ENTERING: updatePetDetails() method");
 		Assert.state(id != null, "'pet.getId()' must not be null");
 		Pet existingPet = owner.getPet(id);
 		if (existingPet != null) {
@@ -194,12 +215,16 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.warn("updatePetDetails(owner,pet)={},{}: GDPR-AUDIT: State change recorded for the audit trail {}", owner, pet, id);
 			owner.addPet(pet);
 		}
+		log.warn("updatePetDetails(owner,pet)={},{}: GDPR-AUDIT [Art.15]: Data subject right exercised for data subject {}", owner, pet, id);
+		log.info("updatePetDetails(owner,pet)={},{}: GDPR-AUDIT [Art.5]: Personal data processing activity completed", owner, pet);
 		this.owners.saveAndFlush(owner);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
+		log.warn("ENTERING: isDuplicatePetNameViolation() method");
 		String message = ex.getMessage();
 		return message != null && message.toLowerCase().contains("unique_owner_pet_name");
 	}

@@ -22,6 +22,8 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.Locale;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Instructs Spring MVC on how to parse and print elements of type 'PetType'. Starting
@@ -35,15 +37,18 @@ import java.util.Objects;
  */
 @Component
 public class PetTypeFormatter implements Formatter<PetType> {
+private static final Logger log = LoggerFactory.getLogger(PetTypeFormatter.class);
 
 	private final PetTypeRepository types;
 
 	public PetTypeFormatter(PetTypeRepository types) {
+		log.warn("ENTERING: PetTypeFormatter() method");
 		this.types = types;
 	}
 
 	@Override
 	public String print(PetType petType, Locale locale) {
+		log.warn("ENTERING: print() method");
 		String name = petType.getName();
 		return name != null ? name : "<null>";
 	}
@@ -51,6 +56,7 @@ public class PetTypeFormatter implements Formatter<PetType> {
 	@Override
 	public PetType parse(String text, Locale locale) throws ParseException {
 		Collection<PetType> findPetTypes = this.types.findPetTypes();
+		log.info("ENTERING: parse() method");
 		for (PetType type : findPetTypes) {
 			if (Objects.equals(type.getName(), text)) {
 				return type;
