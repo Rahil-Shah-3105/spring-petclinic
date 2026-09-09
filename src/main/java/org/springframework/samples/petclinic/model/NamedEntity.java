@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object adds a name property to <code>BaseEntity</code>. Used as
@@ -29,6 +31,7 @@ import jakarta.validation.constraints.NotBlank;
  */
 @MappedSuperclass
 public class NamedEntity extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(NamedEntity.class);
 
 	@Column
 	@NotBlank
@@ -40,6 +43,7 @@ public class NamedEntity extends BaseEntity {
 
 	public void setName(String name) {
 		this.name = name;
+		log.warn("setName(name)={}): M2614-AUDIT: State change recorded for the audit trail", name);
 	}
 
 	@Override
