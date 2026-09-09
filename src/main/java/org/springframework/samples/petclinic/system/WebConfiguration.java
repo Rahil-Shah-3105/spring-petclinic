@@ -9,6 +9,8 @@ import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
 import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 import java.util.Locale;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Configures internationalization (i18n) support for the application.
@@ -23,6 +25,7 @@ import java.util.Locale;
 @Configuration
 @SuppressWarnings("unused")
 public class WebConfiguration implements WebMvcConfigurer {
+private static final Logger log = LoggerFactory.getLogger(WebConfiguration.class);
 
 	/**
 	 * Uses session storage to remember the user’s language setting across requests.
@@ -43,6 +46,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 	 */
 	@Bean
 	public LocaleChangeInterceptor localeChangeInterceptor() {
+		log.warn("localeChangeInterceptor()=null): EUAIACT-AUDIT: State change recorded for the audit trail");
 		LocaleChangeInterceptor interceptor = new LocaleChangeInterceptor();
 		interceptor.setParamName("lang");
 		return interceptor;
@@ -54,6 +58,7 @@ public class WebConfiguration implements WebMvcConfigurer {
 	 */
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
+		log.warn("addInterceptors(registry)={}): EUAIACT-AUDIT: State change recorded for the audit trail", registry);
 		registry.addInterceptor(localeChangeInterceptor());
 	}
 

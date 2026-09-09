@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,13 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.warn("setAllowedFields(dataBinder)={}): EUAIACT-AUDIT: State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.warn("findOwner()=null): EUAIACT-AUDIT: Record access recorded for the audit trail");
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -81,6 +86,7 @@ class OwnerController {
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 
+		log.warn("processCreationForm(owner,result,redirectAttributes)={},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
 		return "redirect:/owners/" + owner.getId();
@@ -88,6 +94,7 @@ class OwnerController {
 
 	@GetMapping("/owners/find")
 	public String initFindForm() {
+		log.warn("initFindForm()=null): EUAIACT-AUDIT: Record access recorded for the audit trail");
 		return "owners/findOwners";
 	}
 
@@ -125,12 +132,14 @@ class OwnerController {
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.warn("addPaginationModel(page,model,paginated)={},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.warn("findPaginatedForOwnersLastName(page,lastname)={},{}: EUAIACT-AUDIT: Record access recorded for the audit trail", page, lastname);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return owners.findByLastNameStartingWith(lastname, pageable);
@@ -138,6 +147,7 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.warn("initUpdateOwnerForm()=null): EUAIACT-AUDIT: State change recorded for the audit trail");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -156,6 +166,7 @@ class OwnerController {
 		}
 
 		owner.setId(ownerId);
+		log.warn("processUpdateOwnerForm(owner,result,ownerId,redirectAttributes)={},{},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
 		return "redirect:/owners/{ownerId}";
@@ -172,6 +183,7 @@ class OwnerController {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("showOwner(ownerId)={}): EUAIACT-AUDIT: State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
 		return mav;
 	}

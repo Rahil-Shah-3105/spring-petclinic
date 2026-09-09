@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -67,6 +70,7 @@ class PetController {
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.warn("findOwner(ownerId)={}): EUAIACT-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 		return owner;
@@ -81,6 +85,7 @@ class PetController {
 		}
 
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.warn("findPet(ownerId)={}): EUAIACT-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 		return owner.getPet(petId);
@@ -126,6 +131,7 @@ class PetController {
 			this.owners.saveAndFlush(owner);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.warn("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
@@ -138,6 +144,7 @@ class PetController {
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.warn("initUpdateForm()=null): EUAIACT-AUDIT: State change recorded for the audit trail");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -168,6 +175,7 @@ class PetController {
 			updatePetDetails(owner, pet);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.warn("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
@@ -187,6 +195,7 @@ class PetController {
 		Integer id = pet.getId();
 		Assert.state(id != null, "'pet.getId()' must not be null");
 		Pet existingPet = owner.getPet(id);
+		log.warn("updatePetDetails(owner,pet)={},{}: EUAIACT-AUDIT: State change recorded for the audit trail {}", owner, pet, id);
 		if (existingPet != null) {
 			// Update existing pet's properties
 			existingPet.setName(pet.getName());
