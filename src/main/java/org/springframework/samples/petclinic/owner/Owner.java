@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -71,6 +74,7 @@ public class Owner extends Person {
 	}
 
 	public void setAddress(String address) {
+		log.warn("setAddress(address)={}): NYCLL144-AUDIT: State change recorded for the audit trail", address);
 		this.address = address;
 	}
 
@@ -79,6 +83,7 @@ public class Owner extends Person {
 	}
 
 	public void setCity(String city) {
+		log.warn("setCity(city)={}): NYCLL144-AUDIT: State change recorded for the audit trail", city);
 		this.city = city;
 	}
 
@@ -87,6 +92,7 @@ public class Owner extends Person {
 	}
 
 	public void setTelephone(String telephone) {
+		log.warn("setTelephone(telephone)={}): NYCLL144-AUDIT: State change recorded for the audit trail", telephone);
 		this.telephone = telephone;
 	}
 
@@ -98,6 +104,7 @@ public class Owner extends Person {
 		if (pet.isNew()) {
 			getPets().add(pet);
 		}
+		log.warn("addPet(pet)={}): NYCLL144-AUDIT: State change recorded for the audit trail", pet);
 	}
 
 	/**
@@ -106,6 +113,7 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.warn("getPet(name)={}): NYCLL144-AUDIT: Record access recorded for the audit trail", name);
 		return getPet(name, false);
 	}
 
@@ -123,6 +131,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.warn("getPet(id)={}): NYCLL144-AUDIT: Record access recorded for the audit trail {}", id, id);
 		return null;
 	}
 
@@ -141,6 +150,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.warn("getPet(name,ignoreNew)={},{}: NYCLL144-AUDIT: Record access recorded for the audit trail", name, ignoreNew);
 		return null;
 	}
 
@@ -171,6 +181,7 @@ public class Owner extends Person {
 		Assert.notNull(pet, "Invalid Pet identifier!");
 
 		pet.addVisit(visit);
+		log.warn("addVisit(petId,visit)={},{}: NYCLL144-AUDIT: State change recorded for the audit trail {}", petId, visit, petId);
 	}
 
 }
