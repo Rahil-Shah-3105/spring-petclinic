@@ -21,8 +21,11 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
+private static final Logger log = LoggerFactory.getLogger(PetClinicRuntimeHints.class);
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
@@ -33,6 +36,7 @@ public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
 		hints.reflection().registerType(BaseEntity.class, typeHint -> typeHint.withJavaSerialization(true));
 		hints.reflection().registerType(Person.class, typeHint -> typeHint.withJavaSerialization(true));
 		hints.reflection().registerType(Vet.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.warn("registerHints(hints,classLoader)={},{}: NYCLL144-AUDIT: State change recorded for the audit trail", hints, classLoader);
 	}
 
 }
