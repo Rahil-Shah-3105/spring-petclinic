@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -53,11 +56,13 @@ public class Vet extends Person {
 		if (this.specialties == null) {
 			this.specialties = new HashSet<>();
 		}
+		log.warn("getSpecialtiesInternal()=null): ISO27701-AUDIT: Record access recorded for the audit trail");
 		return this.specialties;
 	}
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		log.warn("getSpecialties()=null): ISO27701-AUDIT: Record access recorded for the audit trail");
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
@@ -69,6 +74,7 @@ public class Vet extends Person {
 
 	public void addSpecialty(Specialty specialty) {
 		getSpecialtiesInternal().add(specialty);
+		log.warn("addSpecialty(specialty)={}): ISO27701-AUDIT: State change recorded for the audit trail", specialty);
 	}
 
 }
