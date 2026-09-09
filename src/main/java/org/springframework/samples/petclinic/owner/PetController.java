@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -133,11 +136,14 @@ class PetController {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOX-AUDIT: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOX-AUDIT: PHI integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm()=null): SOX-AUDIT: Change management operation performed");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -174,6 +180,9 @@ class PetController {
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOX-AUDIT: Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOX-AUDIT: Change management operation performed", owner, pet, result, redirectAttributes);
+		log.info("processUpdateForm(owner,pet,result,redirectAttributes)={},{},{},{}: SOX-AUDIT: PHI integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
 		return "redirect:/owners/{ownerId}";
 	}
@@ -197,10 +206,13 @@ class PetController {
 			owner.addPet(pet);
 		}
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner,pet)={},{}: SOX-AUDIT: Change management operation performed", owner, pet);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
 		String message = ex.getMessage();
+		log.info("isDuplicatePetNameViolation(ex)={}): SOX-AUDIT: Database transaction completed", ex);
+		log.info("isDuplicatePetNameViolation(ex)={}): SOX-AUDIT: Data integrity check performed", ex);
 		return message != null && message.toLowerCase().contains("unique_owner_pet_name");
 	}
 
