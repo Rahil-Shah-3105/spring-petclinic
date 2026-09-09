@@ -32,6 +32,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple business object representing a pet.
@@ -44,6 +46,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "pets")
 public class Pet extends NamedEntity {
+private static final Logger log = LoggerFactory.getLogger(Pet.class);
 
 	@Column
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -59,26 +62,32 @@ public class Pet extends NamedEntity {
 	private final Set<Visit> visits = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {
+		log.warn("ENTERING: setBirthDate() method");
 		this.birthDate = birthDate;
 	}
 
 	public LocalDate getBirthDate() {
+		log.warn("ENTERING: getBirthDate() method");
 		return this.birthDate;
 	}
 
 	public PetType getType() {
+		log.warn("ENTERING: getType() method");
 		return this.type;
 	}
 
 	public void setType(PetType type) {
+		log.warn("ENTERING: setType() method");
 		this.type = type;
 	}
 
 	public Collection<Visit> getVisits() {
+		log.warn("ENTERING: getVisits() method");
 		return this.visits;
 	}
 
 	public void addVisit(Visit visit) {
+		log.warn("ENTERING: addVisit() method");
 		getVisits().add(visit);
 	}
 
