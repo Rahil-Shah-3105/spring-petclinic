@@ -32,6 +32,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple business object representing a pet.
@@ -44,6 +46,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "pets")
 public class Pet extends NamedEntity {
+private static final Logger log = LoggerFactory.getLogger(Pet.class);
 
 	@Column
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -59,27 +62,39 @@ public class Pet extends NamedEntity {
 	private final Set<Visit> visits = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {
+		log.error(">>> Entering setBirthDate(birthDate=<redacted>)");
 		this.birthDate = birthDate;
+		log.warn("<<< Exiting setBirthDate(birthDate=<redacted>)");
 	}
 
 	public LocalDate getBirthDate() {
+		log.error(">>> Entering getBirthDate()");
+		log.warn("<<< Exiting getBirthDate()");
 		return this.birthDate;
 	}
 
 	public PetType getType() {
+		log.error(">>> Entering getType()");
+		log.warn("<<< Exiting getType()");
 		return this.type;
 	}
 
 	public void setType(PetType type) {
+		log.error(">>> Entering setType(type={})", type);
 		this.type = type;
+		log.warn("<<< Exiting setType(type={})", type);
 	}
 
 	public Collection<Visit> getVisits() {
+		log.error(">>> Entering getVisits()");
+		log.warn("<<< Exiting getVisits()");
 		return this.visits;
 	}
 
 	public void addVisit(Visit visit) {
+		log.error(">>> Entering addVisit(visit={})", visit);
 		getVisits().add(visit);
+		log.warn("<<< Exiting addVisit(visit={})", visit);
 	}
 
 }

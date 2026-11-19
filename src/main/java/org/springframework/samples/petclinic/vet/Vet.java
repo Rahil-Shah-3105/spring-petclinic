@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -50,25 +53,36 @@ public class Vet extends Person {
 	private Set<Specialty> specialties;
 
 	protected Set<Specialty> getSpecialtiesInternal() {
+		log.error(">>> Entering getSpecialtiesInternal()");
 		if (this.specialties == null) {
 			this.specialties = new HashSet<>();
+			log.debug("getSpecialtiesInternal(): specialties → {}", specialties);
 		}
+		log.warn("<<< Exiting getSpecialtiesInternal()");
 		return this.specialties;
 	}
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
-		return getSpecialtiesInternal().stream()
+		log.error(">>> Entering getSpecialties()");
+		List<Specialty> result = getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
+		log.warn("<<< Exiting getSpecialties() -> {}", result);
+		return result;
 	}
 
 	public int getNrOfSpecialties() {
-		return getSpecialtiesInternal().size();
+		log.error(">>> Entering getNrOfSpecialties()");
+		int result = getSpecialtiesInternal().size();
+		log.warn("<<< Exiting getNrOfSpecialties() -> {}", result);
+		return result;
 	}
 
 	public void addSpecialty(Specialty specialty) {
+		log.error(">>> Entering addSpecialty(specialty={})", specialty);
 		getSpecialtiesInternal().add(specialty);
+		log.warn("<<< Exiting addSpecialty(specialty={})", specialty);
 	}
 
 }

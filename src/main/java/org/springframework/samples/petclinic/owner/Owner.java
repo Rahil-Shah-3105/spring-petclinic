@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -67,37 +70,53 @@ public class Owner extends Person {
 	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
+		log.error(">>> Entering getAddress()");
+		log.warn("<<< Exiting getAddress()");
 		return this.address;
 	}
 
 	public void setAddress(String address) {
+		log.error(">>> Entering setAddress(address=<redacted>)");
 		this.address = address;
+		log.warn("<<< Exiting setAddress(address=<redacted>)");
 	}
 
 	public String getCity() {
+		log.error(">>> Entering getCity()");
+		log.warn("<<< Exiting getCity()");
 		return this.city;
 	}
 
 	public void setCity(String city) {
+		log.error(">>> Entering setCity(city={})", city);
 		this.city = city;
+		log.warn("<<< Exiting setCity(city={})", city);
 	}
 
 	public String getTelephone() {
+		log.error(">>> Entering getTelephone()");
+		log.warn("<<< Exiting getTelephone()");
 		return this.telephone;
 	}
 
 	public void setTelephone(String telephone) {
+		log.error(">>> Entering setTelephone(telephone=<redacted>)");
 		this.telephone = telephone;
+		log.warn("<<< Exiting setTelephone(telephone=<redacted>)");
 	}
 
 	public List<Pet> getPets() {
+		log.error(">>> Entering getPets()");
+		log.warn("<<< Exiting getPets()");
 		return this.pets;
 	}
 
 	public void addPet(Pet pet) {
+		log.error(">>> Entering addPet(pet={})", pet);
 		if (pet.isNew()) {
 			getPets().add(pet);
 		}
+		log.warn("<<< Exiting addPet(pet={})", pet);
 	}
 
 	/**
@@ -106,6 +125,7 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.error(">>> Entering getPet(name={})", name);
 		return getPet(name, false);
 	}
 
@@ -146,7 +166,8 @@ public class Owner extends Person {
 
 	@Override
 	public String toString() {
-		return new ToStringCreator(this).append("id", this.getId())
+		log.error(">>> Entering toString()");
+		String result = new ToStringCreator(this).append("id", this.getId())
 			.append("new", this.isNew())
 			.append("lastName", this.getLastName())
 			.append("firstName", this.getFirstName())
@@ -154,6 +175,8 @@ public class Owner extends Person {
 			.append("city", this.city)
 			.append("telephone", this.telephone)
 			.toString();
+		log.warn("<<< Exiting toString() -> {}", result);
+		return result;
 	}
 
 	/**
@@ -162,15 +185,18 @@ public class Owner extends Person {
 	 * @param visit the visit to add, must not be {@literal null}.
 	 */
 	public void addVisit(Integer petId, Visit visit) {
+	log.error(">>> Entering addVisit(petId={},visit={})", petId, visit);
 
 		Assert.notNull(petId, "Pet identifier must not be null!");
 		Assert.notNull(visit, "Visit must not be null!");
 
 		Pet pet = getPet(petId);
+		log.error("addVisit(petId={},visit={}): pet → {}", petId, visit, pet);
 
 		Assert.notNull(pet, "Invalid Pet identifier!");
 
 		pet.addVisit(visit);
+		log.warn("<<< Exiting addVisit(petId={},visit={})", petId, visit);
 	}
 
 }

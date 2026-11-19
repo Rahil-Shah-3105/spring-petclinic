@@ -19,6 +19,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an person.
@@ -27,6 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @MappedSuperclass
 public class Person extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Person.class);
 
 	@Column(length = 30)
 	@Size(max = 30)
@@ -39,19 +42,27 @@ public class Person extends BaseEntity {
 	private String lastName;
 
 	public String getFirstName() {
+		log.error(">>> Entering getFirstName()");
+		log.warn("<<< Exiting getFirstName()");
 		return this.firstName;
 	}
 
 	public void setFirstName(String firstName) {
+		log.error(">>> Entering setFirstName(firstName=<redacted>)");
 		this.firstName = firstName;
+		log.warn("<<< Exiting setFirstName(firstName=<redacted>)");
 	}
 
 	public String getLastName() {
+		log.error(">>> Entering getLastName()");
+		log.warn("<<< Exiting getLastName()");
 		return this.lastName;
 	}
 
 	public void setLastName(String lastName) {
+		log.error(">>> Entering setLastName(lastName=<redacted>)");
 		this.lastName = lastName;
+		log.warn("<<< Exiting setLastName(lastName=<redacted>)");
 	}
 
 }

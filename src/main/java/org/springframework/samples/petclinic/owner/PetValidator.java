@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.owner;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <code>Validator</code> for <code>Pet</code> forms.
@@ -30,13 +32,17 @@ import org.springframework.validation.Validator;
  * @author Juergen Hoeller
  */
 public class PetValidator implements Validator {
+private static final Logger log = LoggerFactory.getLogger(PetValidator.class);
 
 	private static final String REQUIRED = "required";
 
 	@Override
 	public void validate(Object obj, Errors errors) {
+		log.error(">>> Entering validate(obj={},errors={})", obj, errors);
 		Pet pet = (Pet) obj;
 		String name = pet.getName();
+		log.error("validate(obj={},errors={}): name → {}", obj, errors, name);
+		log.error("validate(obj={},errors={}): pet → {}", obj, errors, pet);
 		// name validation
 		if (!StringUtils.hasText(name)) {
 			errors.rejectValue("name", REQUIRED, REQUIRED);
@@ -51,6 +57,7 @@ public class PetValidator implements Validator {
 		if (pet.getBirthDate() == null) {
 			errors.rejectValue("birthDate", REQUIRED, REQUIRED);
 		}
+		log.warn("<<< Exiting validate(obj={},errors={})", obj, errors);
 	}
 
 	/**
@@ -58,7 +65,10 @@ public class PetValidator implements Validator {
 	 */
 	@Override
 	public boolean supports(Class<?> clazz) {
-		return Pet.class.isAssignableFrom(clazz);
+		log.error(">>> Entering supports(clazz={})", clazz);
+		boolean result = Pet.class.isAssignableFrom(clazz);
+		log.warn("<<< Exiting supports(clazz={}) -> {}", clazz, result);
+		return result;
 	}
 
 }

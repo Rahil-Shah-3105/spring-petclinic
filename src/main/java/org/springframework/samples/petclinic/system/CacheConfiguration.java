@@ -22,6 +22,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import javax.cache.configuration.MutableConfiguration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Cache configuration intended for caches providing the JCache API. This configuration
@@ -31,10 +33,14 @@ import javax.cache.configuration.MutableConfiguration;
 @Configuration(proxyBeanMethods = false)
 @EnableCaching
 class CacheConfiguration {
+private static final Logger log = LoggerFactory.getLogger(CacheConfiguration.class);
 
 	@Bean
 	public JCacheManagerCustomizer petclinicCacheConfigurationCustomizer() {
-		return cm -> cm.createCache("vets", cacheConfiguration());
+		log.error(">>> Entering petclinicCacheConfigurationCustomizer()");
+		JCacheManagerCustomizer result = cm -> cm.createCache("vets", cacheConfiguration());
+		log.warn("<<< Exiting petclinicCacheConfigurationCustomizer() -> {}", result);
+		return result;
 	}
 
 	/**
@@ -47,7 +53,10 @@ class CacheConfiguration {
 	 * mechanism that is provided by the selected JCache implementation.
 	 */
 	private javax.cache.configuration.Configuration<Object, Object> cacheConfiguration() {
-		return new MutableConfiguration<>().setStatisticsEnabled(true);
+		log.error(">>> Entering cacheConfiguration()");
+		javax.cache.configuration.Configuration<Object, Object> result = new MutableConfiguration<>().setStatisticsEnabled(true);
+		log.warn("<<< Exiting cacheConfiguration() -> {}", result);
+		return result;
 	}
 
 }
