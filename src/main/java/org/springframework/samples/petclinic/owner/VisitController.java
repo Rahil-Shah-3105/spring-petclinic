@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,7 +53,9 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", dataBinder);
 	}
 
 	/**
@@ -73,10 +78,16 @@ class VisitController {
 					"Pet with id " + petId + " not found for owner with id " + ownerId + ".");
 		}
 		model.put("pet", pet);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		model.put("owner", owner);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		Visit visit = new Visit();
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		pet.addVisit(visit);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		return visit;
 	}
 
@@ -104,10 +115,16 @@ class VisitController {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		owner.addVisit(petId, visit);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		this.owners.save(owner);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		return "redirect:/owners/{ownerId}";
 	}
 

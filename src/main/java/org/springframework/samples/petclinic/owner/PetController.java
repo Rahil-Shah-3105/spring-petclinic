@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -66,9 +69,13 @@ class PetController {
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("findOwner(ownerId={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findOwner(ownerId={}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findOwner(ownerId={}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -77,12 +84,18 @@ class PetController {
 			@PathVariable(name = "petId", required = false) Integer petId) {
 
 		if (petId == null) {
+			log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 			return new Pet();
 		}
+		log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT: Supplier security — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 
+		log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT: Logging — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+		log.info("findPet(ownerId={}, petId={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -120,24 +133,31 @@ class PetController {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		try {
 			owner.addPet(pet);
 			this.owners.saveAndFlush(owner);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm(): ISO27001-AUDIT: Supplier security — Change management operation performed");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -163,18 +183,24 @@ class PetController {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Supplier security — Change management operation performed", owner, pet, result, redirectAttributes);
 
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		try {
 			updatePetDetails(owner, pet);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -185,8 +211,11 @@ class PetController {
 	 */
 	private void updatePetDetails(Owner owner, Pet pet) {
 		Integer id = pet.getId();
+		log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT: Supplier security — Change management operation performed", owner, pet);
 		Assert.state(id != null, "'pet.getId()' must not be null");
+		log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, pet, id);
 		Pet existingPet = owner.getPet(id);
+		log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, pet, id);
 		if (existingPet != null) {
 			// Update existing pet's properties
 			existingPet.setName(pet.getName());
@@ -194,9 +223,12 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, pet, id);
 			owner.addPet(pet);
 		}
+		log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, pet, id);
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner={}, pet={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, pet, id);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {

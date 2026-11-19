@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -78,11 +85,17 @@ class OwnerController {
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -123,21 +136,32 @@ class OwnerController {
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
 		List<Owner> listOwners = paginated.getContent();
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("currentPage", page);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.info("initUpdateOwnerForm(): ISO27001-AUDIT: Supplier security — Change management operation performed");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -154,10 +178,16 @@ class OwnerController {
 			redirectAttributes.addFlashAttribute("error", "Owner ID mismatch. Please try again.");
 			return "redirect:/owners/{ownerId}/edit";
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT: Supplier security — Change management operation performed", owner, result, ownerId, redirectAttributes);
 
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		owner.setId(ownerId);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -168,11 +198,17 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("showOwner(ownerId={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail {}", ownerId, ownerId);
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
+		log.info("showOwner(ownerId={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("showOwner(ownerId={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
+		log.info("showOwner(ownerId={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 
