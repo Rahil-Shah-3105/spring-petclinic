@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -51,6 +54,10 @@ public class Vet extends Person {
 
 	protected Set<Specialty> getSpecialtiesInternal() {
 		if (this.specialties == null) {
+			log.info("getSpecialtiesInternal(): FERPA-AUDIT: Inspect amend — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): FERPA-AUDIT [34 CFR 99.32]: Disclosure log — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail");
 			this.specialties = new HashSet<>();
 		}
 		return this.specialties;
@@ -58,6 +65,8 @@ public class Vet extends Person {
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		log.info("getSpecialties(): FERPA-AUDIT [34 CFR 99.30]: Consent — Record access recorded for the audit trail");
+		log.info("getSpecialties(): FERPA-AUDIT [34 CFR 99.37]: Directory information — Record access recorded for the audit trail");
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
@@ -68,7 +77,9 @@ public class Vet extends Person {
 	}
 
 	public void addSpecialty(Specialty specialty) {
+		log.info("addSpecialty(specialty={}): FERPA-AUDIT [34 CFR 99.30]: Consent — State change recorded for the audit trail", specialty);
 		getSpecialtiesInternal().add(specialty);
+		log.info("addSpecialty(specialty={}): FERPA-AUDIT [34 CFR 99.37]: Directory information — State change recorded for the audit trail", specialty);
 	}
 
 }
