@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): PCI-AUDIT: Authn controls — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -81,8 +88,12 @@ class OwnerController {
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
 
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -125,19 +136,28 @@ class OwnerController {
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): PCI-AUDIT [Req. 10.7]: Security control failure — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): PCI-AUDIT: Script integrity — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): PCI-AUDIT: Authn controls — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): PCI-AUDIT: Audit coverage — Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.info("initUpdateOwnerForm(): PCI-AUDIT: Script integrity — Change management operation performed");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -156,8 +176,12 @@ class OwnerController {
 		}
 
 		owner.setId(ownerId);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): PCI-AUDIT: Script integrity — Change management operation performed", owner, result, ownerId, redirectAttributes);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -170,9 +194,13 @@ class OwnerController {
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("showOwner(ownerId={}): PCI-AUDIT: Audit coverage — State change recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId={}): PCI-AUDIT [Req. 10.7]: Security control failure — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
+		log.info("showOwner(ownerId={}): PCI-AUDIT: Script integrity — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): PCI-AUDIT: Authn controls — State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 
