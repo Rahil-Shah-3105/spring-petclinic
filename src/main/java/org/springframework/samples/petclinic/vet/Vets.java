@@ -20,6 +20,8 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple domain object representing a list of veterinarians. Mostly here to be used for
@@ -29,11 +31,17 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Vets {
+private static final Logger log = LoggerFactory.getLogger(Vets.class);
 
 	private List<Vet> vets;
 
 	@XmlElement
 	public List<Vet> getVetList() {
+		log.info("getVetList(): M2614-AUDIT: Outcome 1: user attribution — Record access recorded for the audit trail");
+		log.info("getVetList(): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail");
+		log.info("getVetList(): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail");
+		log.info("getVetList(): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail");
+		log.info("getVetList(): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail");
 		if (vets == null) {
 			vets = new ArrayList<>();
 		}

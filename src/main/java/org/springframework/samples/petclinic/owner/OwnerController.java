@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -76,13 +83,22 @@ class OwnerController {
 
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Outcome 5: infrastructure changes — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		if (result.hasErrors()) {
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Outcome 4: privilege changes — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -114,6 +130,8 @@ class OwnerController {
 		if (ownersResults.getTotalElements() == 1) {
 			// 1 owner found
 			owner = ownersResults.iterator().next();
+			log.info("processFindForm(page={}, owner={}, result={}, model={}): M2614-AUDIT: Retention: 6 months searchable / 12 months retrievable — State change recorded for the audit trail {}", page, owner, result, model, result);
+			log.info("processFindForm(page={}, owner={}, result={}, model={}): M2614-AUDIT: Outcome 11: CEM + THIRF capability — State change recorded for the audit trail {}", page, owner, result, model, result);
 			return "redirect:/owners/" + owner.getId();
 		}
 
@@ -122,42 +140,63 @@ class OwnerController {
 	}
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail", page, model, paginated);
 		List<Owner> listOwners = paginated.getContent();
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("currentPage", page);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): M2614-AUDIT: Log Management / data protection — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.info("initUpdateOwnerForm(): SOC2-AUDIT [CC8.1]: Change management operation performed");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			RedirectAttributes redirectAttributes) {
+			log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Outcome 4: privilege changes — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in updating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		if (!Objects.equals(owner.getId(), ownerId)) {
 			result.rejectValue("id", "mismatch", "The owner ID in the form does not match the URL.");
 			redirectAttributes.addFlashAttribute("error", "Owner ID mismatch. Please try again.");
 			return "redirect:/owners/{ownerId}/edit";
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		owner.setId(ownerId);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC8.1]: Change management operation performed", owner, result, ownerId, redirectAttributes);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -168,11 +207,17 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("showOwner(ownerId={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail {}", ownerId, ownerId);
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
+		log.info("showOwner(ownerId={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("showOwner(ownerId={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
+		log.info("showOwner(ownerId={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 

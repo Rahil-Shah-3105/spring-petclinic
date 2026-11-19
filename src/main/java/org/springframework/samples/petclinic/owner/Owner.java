@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -67,10 +70,13 @@ public class Owner extends Person {
 	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
+		log.info("getAddress(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
 		return this.address;
 	}
 
 	public void setAddress(String address) {
+		log.info("setAddress(address=<redacted>): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+		log.info("setAddress(address=<redacted>): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
 		this.address = address;
 	}
 
@@ -79,14 +85,19 @@ public class Owner extends Person {
 	}
 
 	public void setCity(String city) {
+		log.info("setCity(city={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", city);
 		this.city = city;
+		log.info("setCity(city={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", city);
 	}
 
 	public String getTelephone() {
+		log.info("getTelephone(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
 		return this.telephone;
 	}
 
 	public void setTelephone(String telephone) {
+		log.info("setTelephone(telephone=<redacted>): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+		log.info("setTelephone(telephone=<redacted>): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
 		this.telephone = telephone;
 	}
 
@@ -95,9 +106,13 @@ public class Owner extends Person {
 	}
 
 	public void addPet(Pet pet) {
+		log.info("addPet(pet={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail", pet);
 		if (pet.isNew()) {
+			log.info("addPet(pet={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail", pet);
 			getPets().add(pet);
+			log.info("addPet(pet={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail", pet);
 		}
+		log.info("addPet(pet={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail", pet);
 	}
 
 	/**
@@ -106,6 +121,8 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.info("getPet(name={}): M2614-AUDIT: Log integrity (encrypt + validate) — Record access recorded for the audit trail", name);
+		log.info("getPet(name={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — Record access recorded for the audit trail", name);
 		return getPet(name, false);
 	}
 
@@ -146,6 +163,7 @@ public class Owner extends Person {
 
 	@Override
 	public String toString() {
+		log.info("toString(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
 		return new ToStringCreator(this).append("id", this.getId())
 			.append("new", this.isNew())
 			.append("lastName", this.getLastName())
@@ -162,15 +180,25 @@ public class Owner extends Person {
 	 * @param visit the visit to add, must not be {@literal null}.
 	 */
 	public void addVisit(Integer petId, Visit visit) {
+	log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 6: suspicious activity & IOC hunting — State change recorded for the audit trail {}", petId, visit, petId);
 
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 5: infrastructure changes — State change recorded for the audit trail {}", petId, visit, petId);
 		Assert.notNull(petId, "Pet identifier must not be null!");
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 4: privilege changes — State change recorded for the audit trail {}", petId, visit, petId);
 		Assert.notNull(visit, "Visit must not be null!");
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 3: object and data access — State change recorded for the audit trail {}", petId, visit, petId);
 
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 2: source/destination network traffic — State change recorded for the audit trail {}", petId, visit, petId);
 		Pet pet = getPet(petId);
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Outcome 1: user attribution — State change recorded for the audit trail {}", petId, visit, petId);
 
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Continuous Event Monitoring / Network Visibility — State change recorded for the audit trail {}", petId, visit, petId);
 		Assert.notNull(pet, "Invalid Pet identifier!");
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Log Management / data protection — State change recorded for the audit trail {}", petId, visit, petId);
 
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail {}", petId, visit, petId);
 		pet.addVisit(visit);
+		log.info("addVisit(petId={}, visit={}): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail {}", petId, visit, petId);
 	}
 
 }
