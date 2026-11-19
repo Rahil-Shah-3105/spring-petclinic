@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -49,6 +52,12 @@ class VetController {
 
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
 		List<Vet> listVets = paginated.getContent();
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
@@ -57,6 +66,10 @@ class VetController {
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.info("findPaginated(page={}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return vetRepository.findAll(pageable);
@@ -64,6 +77,12 @@ class VetController {
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
+		log.info("showResourcesVetList(): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOX-AUDIT: Privileged access — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();

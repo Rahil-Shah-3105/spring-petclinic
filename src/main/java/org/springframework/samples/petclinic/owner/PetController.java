@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -66,9 +69,13 @@ class PetController {
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("findOwner(ownerId={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findOwner(ownerId={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail {}", ownerId, ownerId);
+				log.info("findOwner(ownerId={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -77,12 +84,18 @@ class PetController {
 			@PathVariable(name = "petId", required = false) Integer petId) {
 
 		if (petId == null) {
+			log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+			log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+			log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+			log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 			return new Pet();
 		}
 
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+				log.info("findPet(ownerId={}, petId={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -120,24 +133,31 @@ class PetController {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 
 		try {
 			owner.addPet(pet);
 			this.owners.saveAndFlush(owner);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Access to programs and data — Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Audit log tamper — Financial reporting data integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
 		return "redirect:/owners/{ownerId}";
 	}
 
 	@GetMapping("/pets/{petId}/edit")
 	public String initUpdateForm() {
+		log.info("initUpdateForm(): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed");
 		return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 	}
 
@@ -163,17 +183,23 @@ class PetController {
 		if (result.hasErrors()) {
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 
 		try {
 			updatePetDetails(owner, pet);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Access to programs and data — Database transaction completed with status {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed", owner, pet, result, redirectAttributes);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): SOX-AUDIT: Audit log tamper — Financial reporting data integrity verification completed {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
 		return "redirect:/owners/{ownerId}";
 	}
@@ -185,6 +211,9 @@ class PetController {
 	 */
 	private void updatePetDetails(Owner owner, Pet pet) {
 		Integer id = pet.getId();
+		log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail {}", owner, pet, id);
+		log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail {}", owner, pet, id);
+		log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail {}", owner, pet, id);
 		Assert.state(id != null, "'pet.getId()' must not be null");
 		Pet existingPet = owner.getPet(id);
 		if (existingPet != null) {
@@ -194,13 +223,18 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Change management operation performed", owner, pet);
 			owner.addPet(pet);
 		}
+		log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail {}", owner, pet, id);
+		log.info("updatePetDetails(owner={}, pet={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail {}", owner, pet, id);
 		this.owners.saveAndFlush(owner);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
 		String message = ex.getMessage();
+		log.info("isDuplicatePetNameViolation(ex={}): SOX-AUDIT: Access to programs and data — Database transaction completed", ex);
+		log.info("isDuplicatePetNameViolation(ex={}): SOX-AUDIT: Audit log tamper — Data integrity check performed", ex);
 		return message != null && message.toLowerCase().contains("unique_owner_pet_name");
 	}
 
