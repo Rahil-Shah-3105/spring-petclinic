@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,7 +53,9 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail", dataBinder);
 	}
 
 	/**
@@ -77,6 +82,8 @@ class VisitController {
 
 		Visit visit = new Visit();
 		pet.addVisit(visit);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): NYCLL144-AUDIT: Candidate notice — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): NYCLL144-AUDIT: Aedt audit — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		return visit;
 	}
 
@@ -108,6 +115,8 @@ class VisitController {
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		return "redirect:/owners/{ownerId}";
 	}
 
