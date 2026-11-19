@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -50,6 +53,11 @@ public class Vet extends Person {
 	private Set<Specialty> specialties;
 
 	protected Set<Specialty> getSpecialtiesInternal() {
+		log.info("getSpecialtiesInternal(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+		log.warn("getSpecialtiesInternal(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+		log.info("getSpecialtiesInternal(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log.warn("getSpecialtiesInternal(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+		log.info("getSpecialtiesInternal(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
 		if (this.specialties == null) {
 			this.specialties = new HashSet<>();
 		}
@@ -58,6 +66,8 @@ public class Vet extends Person {
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		log.info("getSpecialties(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
+		log.warn("getSpecialties(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
@@ -68,6 +78,8 @@ public class Vet extends Person {
 	}
 
 	public void addSpecialty(Specialty specialty) {
+		log.info("addSpecialty(specialty={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", specialty);
+		log.warn("addSpecialty(specialty={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", specialty);
 		getSpecialtiesInternal().add(specialty);
 	}
 

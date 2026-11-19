@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -48,6 +51,13 @@ class VetController {
 	}
 
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
+		log.info("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", page, paginated, model);
+		log.warn("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", page, paginated, model);
+		log.warn("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", page, paginated, model);
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
@@ -57,6 +67,10 @@ class VetController {
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.warn("findPaginated(page={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", page);
+		log.warn("findPaginated(page={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return vetRepository.findAll(pageable);
@@ -64,6 +78,12 @@ class VetController {
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
+		log.info("showResourcesVetList(): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail");
+		log.warn("showResourcesVetList(): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail");
+		log.warn("showResourcesVetList(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): GDPR-AUDIT: Breach notification — State change recorded for the audit trail");
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();

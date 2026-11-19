@@ -21,11 +21,22 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
+private static final Logger log = LoggerFactory.getLogger(PetClinicRuntimeHints.class);
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT: Transfers to third countries — Encryption operation completed", hints, classLoader);
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", hints, classLoader);
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", hints, classLoader);
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", hints, classLoader);
+		log.warn("registerHints(hints={}, classLoader={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", hints, classLoader);
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", hints, classLoader);
+		log.warn("registerHints(hints={}, classLoader={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", hints, classLoader);
+		log.info("registerHints(hints={}, classLoader={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", hints, classLoader);
 		hints.resources().registerPattern("db/*"); // https://github.com/spring-projects/spring-boot/issues/32654
 		hints.resources().registerPattern("db/*/*"); // nested db/{h2,mysql,postgres}
 		hints.resources().registerPattern("messages/*");

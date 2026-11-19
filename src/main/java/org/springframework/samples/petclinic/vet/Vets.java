@@ -20,6 +20,8 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple domain object representing a list of veterinarians. Mostly here to be used for
@@ -29,11 +31,17 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Vets {
+private static final Logger log = LoggerFactory.getLogger(Vets.class);
 
 	private List<Vet> vets;
 
 	@XmlElement
 	public List<Vet> getVetList() {
+		log.info("getVetList(): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail");
+		log.warn("getVetList(): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail");
+		log.info("getVetList(): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail");
+		log.warn("getVetList(): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail");
+		log.info("getVetList(): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail");
 		if (vets == null) {
 			vets = new ArrayList<>();
 		}

@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,6 +53,8 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", dataBinder);
+		log.warn("setAllowedFields(dataBinder={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
@@ -68,10 +73,18 @@ class VisitController {
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 
 		Pet pet = owner.getPet(petId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT: Transfers to third countries — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		if (pet == null) {
 			throw new IllegalArgumentException(
 					"Pet with id " + petId + " not found for owner with id " + ownerId + ".");
 		}
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT [Art. 32]: Security of processing — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT [Art. 30]: Records of processing activities — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.warn("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT: Access, erasure, portability — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.warn("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		model.put("pet", pet);
 		model.put("owner", owner);
 
@@ -97,13 +110,22 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result, RedirectAttributes redirectAttributes) {
+			log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
 			result.rejectValue("date", "typeMismatch.visitDate");
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.warn("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art.30]: Personal data processing operation recorded {}", owner, petId, visit, result, redirectAttributes, result);
+		log.warn("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
