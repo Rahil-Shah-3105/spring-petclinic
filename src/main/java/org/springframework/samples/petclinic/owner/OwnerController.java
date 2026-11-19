@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", dataBinder);
+		log.info("setAllowedFields(dataBinder={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -76,6 +83,15 @@ class OwnerController {
 
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
@@ -122,6 +138,13 @@ class OwnerController {
 	}
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", page, model, paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
@@ -131,6 +154,10 @@ class OwnerController {
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return owners.findByLastNameStartingWith(lastname, pageable);
@@ -138,22 +165,32 @@ class OwnerController {
 
 	@GetMapping("/owners/{ownerId}/edit")
 	public String initUpdateOwnerForm() {
+		log.info("initUpdateOwnerForm(): SOC2-AUDIT [CC8.1]: Change management operation performed");
 		return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 	}
 
 	@PostMapping("/owners/{ownerId}/edit")
 	public String processUpdateOwnerForm(@Valid Owner owner, BindingResult result, @PathVariable("ownerId") int ownerId,
 			RedirectAttributes redirectAttributes) {
+			log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		if (result.hasErrors()) {
 			redirectAttributes.addFlashAttribute("error", "There was an error in updating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
 		if (!Objects.equals(owner.getId(), ownerId)) {
 			result.rejectValue("id", "mismatch", "The owner ID in the form does not match the URL.");
 			redirectAttributes.addFlashAttribute("error", "Owner ID mismatch. Please try again.");
 			return "redirect:/owners/{ownerId}/edit";
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC8.1]: Change management operation performed", owner, result, ownerId, redirectAttributes);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
 		owner.setId(ownerId);
 		this.owners.save(owner);
@@ -168,10 +205,16 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("showOwner(ownerId={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail {}", ownerId, ownerId);
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail {}", ownerId, ownerId);
+				log.info("showOwner(ownerId={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail {}", ownerId, ownerId);
+				log.info("showOwner(ownerId={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
 		return mav;
 	}

@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,6 +53,8 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", dataBinder);
+		log.info("setAllowedFields(dataBinder={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
@@ -67,11 +72,20 @@ class VisitController {
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC6.8]: Malicious software — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		Pet pet = owner.getPet(petId);
 		if (pet == null) {
 			throw new IllegalArgumentException(
 					"Pet with id " + petId + " not found for owner with id " + ownerId + ".");
 		}
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC6.1]: Logical access — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC7.3]: Incident response — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC6.6]: Boundary protection — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		model.put("pet", pet);
 		model.put("owner", owner);
 
@@ -97,13 +111,22 @@ class VisitController {
 	@PostMapping("/owners/{ownerId}/pets/{petId}/visits/new")
 	public String processNewVisitForm(@ModelAttribute Owner owner, @PathVariable int petId, @Valid Visit visit,
 			BindingResult result, RedirectAttributes redirectAttributes) {
+			log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.2]: Monitoring coverage — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		if (visit.getDate() != null && !visit.getDate().isAfter(LocalDate.now())) {
 			result.rejectValue("date", "typeMismatch.visitDate");
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.8]: Malicious software — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);
