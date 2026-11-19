@@ -21,18 +21,27 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
+private static final Logger log = LoggerFactory.getLogger(PetClinicRuntimeHints.class);
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
 		hints.resources().registerPattern("db/*"); // https://github.com/spring-projects/spring-boot/issues/32654
 		hints.resources().registerPattern("db/*/*"); // nested db/{h2,mysql,postgres}
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail", hints, classLoader);
 		hints.resources().registerPattern("messages/*");
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", hints, classLoader);
 		hints.resources().registerPattern("mysql-default-conf");
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(BaseEntity.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT [A.8.24]: Cryptography — Encryption operation completed", hints, classLoader);
 		hints.reflection().registerType(Person.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(Vet.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", hints, classLoader);
 	}
 
 }

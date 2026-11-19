@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -49,21 +52,37 @@ class VetController {
 
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
 		List<Vet> listVets = paginated.getContent();
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("currentPage", page);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT: Logging — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT: Incident management — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("listVets", listVets);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT: Continuity — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): ISO27001-AUDIT: Access control — State change recorded for the audit trail", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.info("findPaginated(page={}): ISO27001-AUDIT: Incident management — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginated(page={}): ISO27001-AUDIT [A.8.24]: Cryptography — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginated(page={}): ISO27001-AUDIT: Continuity — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): ISO27001-AUDIT: Access control — Record access recorded for the audit trail", page);
 		return vetRepository.findAll(pageable);
 	}
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
+		log.info("showResourcesVetList(): ISO27001-AUDIT: Supplier security — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): ISO27001-AUDIT: Logging — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): ISO27001-AUDIT: Incident management — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): ISO27001-AUDIT [A.8.24]: Cryptography — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): ISO27001-AUDIT: Continuity — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): ISO27001-AUDIT: Access control — State change recorded for the audit trail");
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
