@@ -21,8 +21,11 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
+private static final Logger log = LoggerFactory.getLogger(PetClinicRuntimeHints.class);
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
@@ -30,9 +33,13 @@ public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
 		hints.resources().registerPattern("db/*/*"); // nested db/{h2,mysql,postgres}
 		hints.resources().registerPattern("messages/*");
 		hints.resources().registerPattern("mysql-default-conf");
+		log.info("registerHints(hints={}, classLoader={}): EUAIACT-AUDIT: Logging coverage — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(BaseEntity.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): EUAIACT-AUDIT: GPAI obligations — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(Person.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): EUAIACT-AUDIT [Art. 26(6)]: Deployer log retention — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(Vet.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): EUAIACT-AUDIT [Art. 50]: Transparency — State change recorded for the audit trail", hints, classLoader);
 	}
 
 }
