@@ -19,6 +19,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an person.
@@ -27,6 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @MappedSuperclass
 public class Person extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Person.class);
 
 	@Column(length = 30)
 	@Size(max = 30)
@@ -44,6 +47,7 @@ public class Person extends BaseEntity {
 
 	public void setFirstName(String firstName) {
 		this.firstName = firstName;
+		log.info("setFirstName(firstName=<redacted>): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
 	}
 
 	public String getLastName() {
@@ -52,6 +56,7 @@ public class Person extends BaseEntity {
 
 	public void setLastName(String lastName) {
 		this.lastName = lastName;
+		log.info("setLastName(lastName=<redacted>): GEN-AUDIT: Security hygiene — State change recorded for the audit trail");
 	}
 
 }
