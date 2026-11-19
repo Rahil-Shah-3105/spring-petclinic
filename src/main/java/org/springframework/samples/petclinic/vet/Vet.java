@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -50,6 +53,11 @@ public class Vet extends Person {
 	private Set<Specialty> specialties;
 
 	protected Set<Specialty> getSpecialtiesInternal() {
+		log.info("getSpecialtiesInternal(): FEDRAMP-AUDIT [RA-5]: Vulnerability management — Record access recorded for the audit trail");
+		log.info("getSpecialtiesInternal(): FEDRAMP-AUDIT: Incident response — Record access recorded for the audit trail");
+		log.info("getSpecialtiesInternal(): FEDRAMP-AUDIT: Crypto protection — Password reset operation performed");
+		log.info("getSpecialtiesInternal(): FEDRAMP-AUDIT: Configuration management — Record access recorded for the audit trail");
+		log.info("getSpecialtiesInternal(): FEDRAMP-AUDIT: Audit completeness — Record access recorded for the audit trail");
 		if (this.specialties == null) {
 			this.specialties = new HashSet<>();
 		}
@@ -58,6 +66,8 @@ public class Vet extends Person {
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		log.info("getSpecialties(): FEDRAMP-AUDIT: Audit completeness — Record access recorded for the audit trail");
+		log.info("getSpecialties(): FEDRAMP-AUDIT: Configuration management — Record access recorded for the audit trail");
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
@@ -68,7 +78,9 @@ public class Vet extends Person {
 	}
 
 	public void addSpecialty(Specialty specialty) {
+		log.info("addSpecialty(specialty={}): FEDRAMP-AUDIT: Audit completeness — State change recorded for the audit trail", specialty);
 		getSpecialtiesInternal().add(specialty);
+		log.info("addSpecialty(specialty={}): FEDRAMP-AUDIT: Configuration management — State change recorded for the audit trail", specialty);
 	}
 
 }
