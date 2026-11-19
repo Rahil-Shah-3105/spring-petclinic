@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -67,8 +70,11 @@ class PetController {
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findOwner(ownerId={}): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findOwner(ownerId={}): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -81,8 +87,11 @@ class PetController {
 		}
 
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findPet(ownerId={}, petId={}): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findPet(ownerId={}, petId={}): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+		log.info("findPet(ownerId={}, petId={}): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -132,7 +141,10 @@ class PetController {
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Impact assessment — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Consumer notice — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Admt adverse — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -174,7 +186,10 @@ class PetController {
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Impact assessment — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Consumer notice — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): COAI-AUDIT: Admt adverse — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -194,9 +209,12 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.info("updatePetDetails(owner={}, pet={}): COAI-AUDIT: Impact assessment — State change recorded for the audit trail {}", owner, pet, id);
 			owner.addPet(pet);
 		}
+		log.info("updatePetDetails(owner={}, pet={}): COAI-AUDIT: Consumer notice — State change recorded for the audit trail {}", owner, pet, id);
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner={}, pet={}): COAI-AUDIT: Admt adverse — State change recorded for the audit trail {}", owner, pet, id);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {

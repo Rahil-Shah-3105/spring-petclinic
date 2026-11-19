@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -52,13 +55,19 @@ class VetController {
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, paginated={}, model={}): COAI-AUDIT: Impact assessment — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("listVets", listVets);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): COAI-AUDIT: Consumer notice — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): COAI-AUDIT: Admt adverse — State change recorded for the audit trail", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
 		int pageSize = 5;
+		log.info("findPaginated(page={}): COAI-AUDIT: Impact assessment — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginated(page={}): COAI-AUDIT: Consumer notice — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): COAI-AUDIT: Admt adverse — Record access recorded for the audit trail", page);
 		return vetRepository.findAll(pageable);
 	}
 
@@ -67,6 +76,9 @@ class VetController {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
+		log.info("showResourcesVetList(): COAI-AUDIT: Impact assessment — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): COAI-AUDIT: Consumer notice — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): COAI-AUDIT: Admt adverse — State change recorded for the audit trail");
 		vets.getVetList().addAll(this.vetRepository.findAll());
 		return vets;
 	}
