@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object adds a name property to <code>BaseEntity</code>. Used as
@@ -29,16 +31,20 @@ import jakarta.validation.constraints.NotBlank;
  */
 @MappedSuperclass
 public class NamedEntity extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(NamedEntity.class);
 
 	@Column
 	@NotBlank
 	private String name;
 
 	public String getName() {
+		log.info("getName(): GDPR-AUDIT [Art.30]: Personal data processing activity completed");
 		return this.name;
 	}
 
 	public void setName(String name) {
+		log.info("setName(name={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", name);
+		log.warn("setName(name={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", name);
 		this.name = name;
 	}
 

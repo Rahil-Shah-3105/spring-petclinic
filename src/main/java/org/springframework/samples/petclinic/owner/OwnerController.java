@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", dataBinder);
+		log.warn("setAllowedFields(dataBinder={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.warn("findOwner(ownerId={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -77,6 +84,14 @@ class OwnerController {
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.warn("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.warn("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+			log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
@@ -122,6 +137,13 @@ class OwnerController {
 	}
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
+		log.info("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail", page, model, paginated);
+		log.warn("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail", page, model, paginated);
+		log.warn("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail", page, model, paginated);
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
@@ -131,6 +153,10 @@ class OwnerController {
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): GDPR-AUDIT [Art. 25]: Data protection by design and by default — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): GDPR-AUDIT [Art.30]: Personal data processing activity completed", page);
+		log.warn("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): GDPR-AUDIT [Art. 6]: Lawfulness of processing — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): GDPR-AUDIT: Breach notification — Record access recorded for the audit trail", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return owners.findByLastNameStartingWith(lastname, pageable);
@@ -148,12 +174,20 @@ class OwnerController {
 			redirectAttributes.addFlashAttribute("error", "There was an error in updating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT: Transfers to third countries — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT [Art. 32]: Security of processing — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
 		if (!Objects.equals(owner.getId(), ownerId)) {
 			result.rejectValue("id", "mismatch", "The owner ID in the form does not match the URL.");
 			redirectAttributes.addFlashAttribute("error", "Owner ID mismatch. Please try again.");
 			return "redirect:/owners/{ownerId}/edit";
 		}
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.warn("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.warn("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 
 		owner.setId(ownerId);
 		this.owners.save(owner);
@@ -168,10 +202,16 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("showOwner(ownerId={}): GDPR-AUDIT: Breach notification — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): GDPR-AUDIT [Art. 5(1)(e)]: Storage limitation — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): GDPR-AUDIT [Art. 30]: Records of processing activities — State change recorded for the audit trail {}", ownerId, ownerId);
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.warn("showOwner(ownerId={}): GDPR-AUDIT: Access, erasure, portability — State change recorded for the audit trail {}", ownerId, ownerId);
+				log.info("showOwner(ownerId={}): GDPR-AUDIT [Art. 25]: Data protection by design and by default — State change recorded for the audit trail {}", ownerId, ownerId);
+				log.warn("showOwner(ownerId={}): GDPR-AUDIT [Art. 6]: Lawfulness of processing — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
 		return mav;
 	}
