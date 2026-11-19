@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -53,12 +56,16 @@ class VetController {
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listVets", listVets);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginated(page={}): NYCLL144-AUDIT: Candidate notice — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): NYCLL144-AUDIT: Aedt audit — Record access recorded for the audit trail", page);
 		return vetRepository.findAll(pageable);
 	}
 
@@ -68,6 +75,8 @@ class VetController {
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vetRepository.findAll());
+		log.info("showResourcesVetList(): NYCLL144-AUDIT: Candidate notice — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): NYCLL144-AUDIT: Aedt audit — State change recorded for the audit trail");
 		return vets;
 	}
 
