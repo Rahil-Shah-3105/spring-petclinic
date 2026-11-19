@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,7 +53,9 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", dataBinder);
 	}
 
 	/**
@@ -75,8 +80,12 @@ class VisitController {
 		model.put("pet", pet);
 		model.put("owner", owner);
 
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): DORA-AUDIT: Third party risk — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		Visit visit = new Visit();
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): DORA-AUDIT: Resilience testing — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		pet.addVisit(visit);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): DORA-AUDIT [Art. 45]: Information sharing — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): DORA-AUDIT: Incident coverage — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		return visit;
 	}
 
@@ -106,8 +115,12 @@ class VisitController {
 		}
 
 		owner.addVisit(petId, visit);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): DORA-AUDIT: Third party risk — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		this.owners.save(owner);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): DORA-AUDIT: Resilience testing — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		redirectAttributes.addFlashAttribute("message", "Your visit has been booked");
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 		return "redirect:/owners/{ownerId}";
 	}
 
