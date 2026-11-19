@@ -18,6 +18,8 @@ package org.springframework.samples.petclinic.owner;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.Errors;
 import org.springframework.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <code>Validator</code> for <code>Pet</code> forms.
@@ -30,6 +32,7 @@ import org.springframework.validation.Validator;
  * @author Juergen Hoeller
  */
 public class PetValidator implements Validator {
+private static final Logger log = LoggerFactory.getLogger(PetValidator.class);
 
 	private static final String REQUIRED = "required";
 
@@ -51,6 +54,7 @@ public class PetValidator implements Validator {
 		if (pet.getBirthDate() == null) {
 			errors.rejectValue("birthDate", REQUIRED, REQUIRED);
 		}
+		log.info("validate(obj={}, errors={}): HIPAA-AUDIT [§164.312(c)(1)]: Data integrity check performed", obj, errors);
 	}
 
 	/**

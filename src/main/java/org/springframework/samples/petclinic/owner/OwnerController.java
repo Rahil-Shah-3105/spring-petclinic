@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,13 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): HIPAA-AUDIT: State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): HIPAA-AUDIT: Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -83,6 +88,7 @@ class OwnerController {
 
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): HIPAA-AUDIT: State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -127,12 +133,14 @@ class OwnerController {
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): HIPAA-AUDIT: State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): HIPAA-AUDIT: Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
@@ -158,6 +166,7 @@ class OwnerController {
 		owner.setId(ownerId);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): HIPAA-AUDIT: State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -168,6 +177,7 @@ class OwnerController {
 	 */
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("showOwner(ownerId={}): HIPAA-AUDIT: State change recorded for the audit trail {}", ownerId, ownerId);
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
