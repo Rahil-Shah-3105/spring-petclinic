@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -80,9 +87,14 @@ class OwnerController {
 			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
 			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): CMMC-AUDIT: Access control — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -124,15 +136,24 @@ class OwnerController {
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
 		List<Owner> listOwners = paginated.getContent();
 		model.addAttribute("currentPage", page);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, model={}, paginated={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", page, model, paginated);
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): CMMC-AUDIT: Incident response — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): CMMC-AUDIT: Access control — Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
@@ -155,9 +176,14 @@ class OwnerController {
 			return "redirect:/owners/{ownerId}/edit";
 		}
 
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		owner.setId(ownerId);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		this.owners.save(owner);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): CMMC-AUDIT: Access control — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -169,10 +195,15 @@ class OwnerController {
 	@GetMapping("/owners/{ownerId}")
 	public ModelAndView showOwner(@PathVariable("ownerId") int ownerId) {
 		ModelAndView mav = new ModelAndView("owners/ownerDetails");
+		log.info("showOwner(ownerId={}): CMMC-AUDIT: Access control — State change recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("showOwner(ownerId={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("showOwner(ownerId={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail {}", ownerId, ownerId);
 		mav.addObject(owner);
+		log.info("showOwner(ownerId={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 
