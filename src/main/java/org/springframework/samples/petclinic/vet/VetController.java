@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -48,6 +51,13 @@ class VetController {
 	}
 
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC6.1]: Logical access — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC7.1]: System operations — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail", page, paginated, model);
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
 		model.addAttribute("totalPages", paginated.getTotalPages());
@@ -57,6 +67,10 @@ class VetController {
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.info("findPaginated(page={}): SOC2-AUDIT [CC8.1]: Change management — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOC2-AUDIT [CC7.1]: System operations — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOC2-AUDIT [CC6.3]: Authorization — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): SOC2-AUDIT [CC6.2]: Authentication — Record access recorded for the audit trail", page);
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
 		return vetRepository.findAll(pageable);
@@ -64,6 +78,12 @@ class VetController {
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC7.3]: Incident response — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC6.6]: Boundary protection — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC8.1]: Change management — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC7.2]: System operation completed");
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC6.3]: Authorization — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): SOC2-AUDIT [CC6.2]: Authentication — State change recorded for the audit trail");
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
