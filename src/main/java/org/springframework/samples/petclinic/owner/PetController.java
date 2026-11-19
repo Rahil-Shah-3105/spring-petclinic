@@ -37,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 @RequestMapping("/owners/{ownerId}")
 class PetController {
+private static final Logger log = LoggerFactory.getLogger(PetController.class);
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
 
@@ -66,9 +69,13 @@ class PetController {
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable("ownerId") int ownerId) {
+		log.info("findOwner(ownerId={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findOwner(ownerId={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail {}", ownerId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findOwner(ownerId={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return owner;
 	}
 
@@ -80,9 +87,13 @@ class PetController {
 			return new Pet();
 		}
 
+		log.info("findPet(ownerId={}, petId={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		Optional<Owner> optionalOwner = this.owners.findById(ownerId);
+		log.info("findPet(ownerId={}, petId={}): GLBA-AUDIT: Security program — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
+				log.info("findPet(ownerId={}, petId={}): GLBA-AUDIT: Encryption disposal — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
+		log.info("findPet(ownerId={}, petId={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — Record access recorded for the audit trail {}", ownerId, petId, ownerId);
 		return owner.getPet(petId);
 	}
 
@@ -126,13 +137,17 @@ class PetController {
 			this.owners.saveAndFlush(owner);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT: Security program — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "New Pet has been Added");
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -168,13 +183,17 @@ class PetController {
 			updatePetDetails(owner, pet);
 		}
 		catch (DataIntegrityViolationException ex) {
+			log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT: Security program — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 			if (!isDuplicatePetNameViolation(ex)) {
 				throw ex;
 			}
 			result.rejectValue("name", "duplicate", "already exists");
 			return VIEWS_PETS_CREATE_OR_UPDATE_FORM;
 		}
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		redirectAttributes.addFlashAttribute("message", "Pet details has been edited");
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
+		log.info("processUpdateForm(owner={}, pet={}, result={}, redirectAttributes={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail {}", owner, pet, result, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -187,6 +206,7 @@ class PetController {
 		Integer id = pet.getId();
 		Assert.state(id != null, "'pet.getId()' must not be null");
 		Pet existingPet = owner.getPet(id);
+		log.info("updatePetDetails(owner={}, pet={}): GLBA-AUDIT: Security program — State change recorded for the audit trail {}", owner, pet, id);
 		if (existingPet != null) {
 			// Update existing pet's properties
 			existingPet.setName(pet.getName());
@@ -194,9 +214,12 @@ class PetController {
 			existingPet.setType(pet.getType());
 		}
 		else {
+			log.info("updatePetDetails(owner={}, pet={}): GLBA-AUDIT: Encryption disposal — State change recorded for the audit trail {}", owner, pet, id);
 			owner.addPet(pet);
 		}
+		log.info("updatePetDetails(owner={}, pet={}): GLBA-AUDIT [16 CFR 314.4(j)]: Breach notification — State change recorded for the audit trail {}", owner, pet, id);
 		this.owners.saveAndFlush(owner);
+		log.info("updatePetDetails(owner={}, pet={}): GLBA-AUDIT [16 CFR 314.4(c)(5)]: Access controls — State change recorded for the audit trail {}", owner, pet, id);
 	}
 
 	private boolean isDuplicatePetNameViolation(DataIntegrityViolationException ex) {
