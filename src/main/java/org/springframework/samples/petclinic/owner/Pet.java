@@ -32,6 +32,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple business object representing a pet.
@@ -44,6 +46,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "pets")
 public class Pet extends NamedEntity {
+private static final Logger log = LoggerFactory.getLogger(Pet.class);
 
 	@Column
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -59,6 +62,8 @@ public class Pet extends NamedEntity {
 	private final Set<Visit> visits = new LinkedHashSet<>();
 
 	public void setBirthDate(LocalDate birthDate) {
+		log.info("setBirthDate(birthDate=<redacted>): DORA-AUDIT: Incident coverage — State change recorded for the audit trail");
+		log.info("setBirthDate(birthDate=<redacted>): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail");
 		this.birthDate = birthDate;
 	}
 
@@ -71,7 +76,9 @@ public class Pet extends NamedEntity {
 	}
 
 	public void setType(PetType type) {
+		log.info("setType(type={}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", type);
 		this.type = type;
+		log.info("setType(type={}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", type);
 	}
 
 	public Collection<Visit> getVisits() {
@@ -79,7 +86,9 @@ public class Pet extends NamedEntity {
 	}
 
 	public void addVisit(Visit visit) {
+		log.info("addVisit(visit={}): DORA-AUDIT: Incident coverage — State change recorded for the audit trail", visit);
 		getVisits().add(visit);
+		log.info("addVisit(visit={}): DORA-AUDIT [Art. 45]: Information sharing — State change recorded for the audit trail", visit);
 	}
 
 }
