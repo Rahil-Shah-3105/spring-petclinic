@@ -62,6 +62,7 @@ private static final Logger log = LoggerFactory.getLogger(PetController.class);
 		this.owners = owners;
 		log.debug("PetController(owners={},types={}): this.owners → {}", owners, types, this.owners);
 		this.types = types;
+		log.debug("PetController(owners={},types={}): this.types → {}", owners, types, this.types);
 		log.warn("<<< Exiting PetController(owners={},types={})", owners, types);
 	}
 

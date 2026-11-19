@@ -58,6 +58,7 @@ private static final Logger log = LoggerFactory.getLogger(OwnerController.class)
 	public OwnerController(OwnerRepository owners) {
 		log.error(">>> Entering OwnerController(owners={})", owners);
 		this.owners = owners;
+		log.debug("OwnerController(owners={}): this.owners → {}", owners, this.owners);
 		log.warn("<<< Exiting OwnerController(owners={})", owners);
 	}
 
@@ -111,6 +112,7 @@ private static final Logger log = LoggerFactory.getLogger(OwnerController.class)
 	@GetMapping("/owners")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Owner owner, BindingResult result,
 			Model model) {
+			log.error(">>> Entering processFindForm(page={},owner={},result={},model={})", page, owner, result, model);
 		// allow parameterless GET request for /owners to return all records
 		String lastName = owner.getLastName();
 		if (lastName == null) {
@@ -136,7 +138,9 @@ private static final Logger log = LoggerFactory.getLogger(OwnerController.class)
 		}
 
 		// multiple owners found
-		return addPaginationModel(page, model, ownersResults);
+		String logriteResult = addPaginationModel(page, model, ownersResults);
+		log.warn("<<< Exiting processFindForm(page={},owner={},result={},model={}) -> {}", page, owner, result, model, logriteResult);
+		return logriteResult;
 	}
 
 	private String addPaginationModel(int page, Model model, Page<Owner> paginated) {
