@@ -37,6 +37,8 @@ import org.springframework.web.servlet.ModelAndView;
 import jakarta.validation.Valid;
 
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -47,6 +49,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+private static final Logger log = LoggerFactory.getLogger(OwnerController.class);
 
 	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
 
@@ -58,11 +61,15 @@ class OwnerController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
+		log.info("setAllowedFields(dataBinder={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", dataBinder);
 	}
 
 	@ModelAttribute("owner")
 	public Owner findOwner(@PathVariable(name = "ownerId", required = false) Integer ownerId) {
+		log.info("findOwner(ownerId={}): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail {}", ownerId, ownerId);
+		log.info("findOwner(ownerId={}): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail {}", ownerId, ownerId);
 		return ownerId == null ? new Owner()
 				: this.owners.findById(ownerId)
 					.orElseThrow(() -> new IllegalArgumentException("Owner not found with id: " + ownerId
@@ -83,6 +90,8 @@ class OwnerController {
 
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
+		log.info("processCreationForm(owner={}, result={}, redirectAttributes={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail {}", owner, result, redirectAttributes, result);
 		return "redirect:/owners/" + owner.getId();
 	}
 
@@ -127,12 +136,16 @@ class OwnerController {
 		model.addAttribute("totalPages", paginated.getTotalPages());
 		model.addAttribute("totalItems", paginated.getTotalElements());
 		model.addAttribute("listOwners", listOwners);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail", page, model, paginated);
+		log.info("addPaginationModel(page={}, model={}, paginated={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail", page, model, paginated);
 		return "owners/ownersList";
 	}
 
 	private Page<Owner> findPaginatedForOwnersLastName(int page, String lastname) {
 		int pageSize = 5;
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27701-AUDIT: Processor obligations — Record access recorded for the audit trail", page);
+		log.info("findPaginatedForOwnersLastName(page={}, lastname=<redacted>): ISO27701-AUDIT: Controller obligations — Record access recorded for the audit trail", page);
 		return owners.findByLastNameStartingWith(lastname, pageable);
 	}
 
@@ -158,6 +171,8 @@ class OwnerController {
 		owner.setId(ownerId);
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "Owner Values Updated");
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
+		log.info("processUpdateOwnerForm(owner={}, result={}, ownerId={}, redirectAttributes={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail {}", owner, result, ownerId, redirectAttributes, result);
 		return "redirect:/owners/{ownerId}";
 	}
 
@@ -173,6 +188,8 @@ class OwnerController {
 		Owner owner = optionalOwner.orElseThrow(() -> new IllegalArgumentException(
 				"Owner not found with id: " + ownerId + ". Please ensure the ID is correct "));
 		mav.addObject(owner);
+		log.info("showOwner(ownerId={}): ISO27701-AUDIT: Processor obligations — State change recorded for the audit trail {}", ownerId, ownerId);
+		log.info("showOwner(ownerId={}): ISO27701-AUDIT: Controller obligations — State change recorded for the audit trail {}", ownerId, ownerId);
 		return mav;
 	}
 
