@@ -30,6 +30,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import jakarta.validation.Valid;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -41,6 +43,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class VisitController {
+private static final Logger log = LoggerFactory.getLogger(VisitController.class);
 
 	private final OwnerRepository owners;
 
@@ -50,6 +53,8 @@ class VisitController {
 
 	@InitBinder
 	public void setAllowedFields(WebDataBinder dataBinder) {
+		log.info("setAllowedFields(dataBinder={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", dataBinder);
+		log.info("setAllowedFields(dataBinder={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", dataBinder);
 		dataBinder.setDisallowedFields("id", "*.id");
 	}
 
@@ -73,6 +78,12 @@ class VisitController {
 					"Pet with id " + petId + " not found for owner with id " + ownerId + ".");
 		}
 		model.put("pet", pet);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Segregation of duties — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Privileged access — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Access to programs and data — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Change management (PCAOB AS 2201) — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
+		log.info("loadPetWithVisit(ownerId={}, petId={}, model={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail {}", ownerId, petId, model, ownerId);
 		model.put("owner", owner);
 
 		Visit visit = new Visit();
@@ -104,6 +115,12 @@ class VisitController {
 		if (result.hasErrors()) {
 			return "pets/createOrUpdateVisitForm";
 		}
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
+		log.info("processNewVisitForm(owner={}, petId={}, visit={}, result={}, redirectAttributes={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail {}", owner, petId, visit, result, redirectAttributes, petId);
 
 		owner.addVisit(petId, visit);
 		this.owners.save(owner);

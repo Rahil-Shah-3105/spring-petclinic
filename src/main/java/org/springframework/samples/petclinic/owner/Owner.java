@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -71,6 +74,8 @@ public class Owner extends Person {
 	}
 
 	public void setAddress(String address) {
+		log.info("setAddress(address=<redacted>): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+		log.info("setAddress(address=<redacted>): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
 		this.address = address;
 	}
 
@@ -79,6 +84,8 @@ public class Owner extends Person {
 	}
 
 	public void setCity(String city) {
+		log.info("setCity(city={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", city);
+		log.info("setCity(city={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", city);
 		this.city = city;
 	}
 
@@ -87,6 +94,8 @@ public class Owner extends Person {
 	}
 
 	public void setTelephone(String telephone) {
+		log.info("setTelephone(telephone=<redacted>): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail");
+		log.info("setTelephone(telephone=<redacted>): SOX-AUDIT: Computer operations — State change recorded for the audit trail");
 		this.telephone = telephone;
 	}
 
@@ -95,6 +104,10 @@ public class Owner extends Person {
 	}
 
 	public void addPet(Pet pet) {
+		log.info("addPet(pet={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail", pet);
+		log.info("addPet(pet={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail", pet);
+		log.info("addPet(pet={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", pet);
+		log.info("addPet(pet={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", pet);
 		if (pet.isNew()) {
 			getPets().add(pet);
 		}
@@ -106,6 +119,8 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.info("getPet(name={}): SOX-AUDIT: Computer operations — Record access recorded for the audit trail", name);
+		log.info("getPet(name={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", name);
 		return getPet(name, false);
 	}
 
@@ -123,6 +138,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.info("getPet(id={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail {}", id, id);
 		return null;
 	}
 
@@ -141,6 +157,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.info("getPet(name={}, ignoreNew={}): SOX-AUDIT: Audit log tamper — Record access recorded for the audit trail", name, ignoreNew);
 		return null;
 	}
 
@@ -166,6 +183,12 @@ public class Owner extends Person {
 		Assert.notNull(petId, "Pet identifier must not be null!");
 		Assert.notNull(visit, "Visit must not be null!");
 
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Segregation of duties — State change recorded for the audit trail {}", petId, visit, petId);
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Privileged access — State change recorded for the audit trail {}", petId, visit, petId);
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Access to programs and data — State change recorded for the audit trail {}", petId, visit, petId);
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Change management (PCAOB AS 2201) — State change recorded for the audit trail {}", petId, visit, petId);
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail {}", petId, visit, petId);
+		log.info("addVisit(petId={}, visit={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail {}", petId, visit, petId);
 		Pet pet = getPet(petId);
 
 		Assert.notNull(pet, "Invalid Pet identifier!");

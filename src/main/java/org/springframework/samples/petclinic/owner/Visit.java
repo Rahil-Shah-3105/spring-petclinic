@@ -24,6 +24,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a visit.
@@ -34,6 +36,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "visits")
 public class Visit extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Visit.class);
 
 	@Column(name = "visit_date")
 	@DateTimeFormat(pattern = "yyyy-MM-dd")
@@ -54,6 +57,8 @@ public class Visit extends BaseEntity {
 	}
 
 	public void setDate(LocalDate date) {
+		log.info("setDate(date={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", date);
+		log.info("setDate(date={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", date);
 		this.date = date;
 	}
 
@@ -62,6 +67,8 @@ public class Visit extends BaseEntity {
 	}
 
 	public void setDescription(String description) {
+		log.info("setDescription(description={}): SOX-AUDIT: Audit log tamper — State change recorded for the audit trail", description);
+		log.info("setDescription(description={}): SOX-AUDIT: Computer operations — State change recorded for the audit trail", description);
 		this.description = description;
 	}
 
