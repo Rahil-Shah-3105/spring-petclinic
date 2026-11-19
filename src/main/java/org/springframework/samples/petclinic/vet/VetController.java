@@ -25,6 +25,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author Juergen Hoeller
@@ -34,6 +36,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 @Controller
 class VetController {
+private static final Logger log = LoggerFactory.getLogger(VetController.class);
 
 	private final VetRepository vetRepository;
 
@@ -50,21 +53,35 @@ class VetController {
 	private String addPaginationModel(int page, Page<Vet> paginated, Model model) {
 		List<Vet> listVets = paginated.getContent();
 		model.addAttribute("currentPage", page);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): CMMC-AUDIT: Media protection — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("totalPages", paginated.getTotalPages());
+		log.info("addPaginationModel(page={}, paginated={}, model={}): CMMC-AUDIT: Incident response — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("totalItems", paginated.getTotalElements());
+		log.info("addPaginationModel(page={}, paginated={}, model={}): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail", page, paginated, model);
 		model.addAttribute("listVets", listVets);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail", page, paginated, model);
+		log.info("addPaginationModel(page={}, paginated={}, model={}): CMMC-AUDIT: Access control — State change recorded for the audit trail", page, paginated, model);
 		return "vets/vetList";
 	}
 
 	private Page<Vet> findPaginated(int page) {
+		log.info("findPaginated(page={}): CMMC-AUDIT: Incident response — Record access recorded for the audit trail", page);
 		int pageSize = 5;
+		log.info("findPaginated(page={}): CMMC-AUDIT: Crypto protection — Record access recorded for the audit trail", page);
 		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		log.info("findPaginated(page={}): CMMC-AUDIT: Audit traceability — Record access recorded for the audit trail", page);
+		log.info("findPaginated(page={}): CMMC-AUDIT: Access control — Record access recorded for the audit trail", page);
 		return vetRepository.findAll(pageable);
 	}
 
 	@GetMapping({ "/vets" })
 	public @ResponseBody Vets showResourcesVetList() {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		log.info("showResourcesVetList(): CMMC-AUDIT: Media protection — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): CMMC-AUDIT: Incident response — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): CMMC-AUDIT: Crypto protection — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): CMMC-AUDIT: Audit traceability — State change recorded for the audit trail");
+		log.info("showResourcesVetList(): CMMC-AUDIT: Access control — State change recorded for the audit trail");
 		// objects so it is simpler for JSon/Object mapping
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vetRepository.findAll());
