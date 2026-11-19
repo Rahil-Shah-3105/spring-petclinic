@@ -33,6 +33,8 @@ import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an owner.
@@ -47,6 +49,7 @@ import jakarta.validation.constraints.NotBlank;
 @Entity
 @Table(name = "owners")
 public class Owner extends Person {
+private static final Logger log = LoggerFactory.getLogger(Owner.class);
 
 	@Column
 	@NotBlank
@@ -71,6 +74,8 @@ public class Owner extends Person {
 	}
 
 	public void setAddress(String address) {
+		log.info("setAddress(address=<redacted>): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+		log.info("setAddress(address=<redacted>): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
 		this.address = address;
 	}
 
@@ -79,7 +84,9 @@ public class Owner extends Person {
 	}
 
 	public void setCity(String city) {
+		log.info("setCity(city={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail", city);
 		this.city = city;
+		log.info("setCity(city={}): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail", city);
 	}
 
 	public String getTelephone() {
@@ -87,6 +94,8 @@ public class Owner extends Person {
 	}
 
 	public void setTelephone(String telephone) {
+		log.info("setTelephone(telephone=<redacted>): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail");
+		log.info("setTelephone(telephone=<redacted>): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail");
 		this.telephone = telephone;
 	}
 
@@ -95,9 +104,13 @@ public class Owner extends Person {
 	}
 
 	public void addPet(Pet pet) {
+		log.info("addPet(pet={}): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail", pet);
 		if (pet.isNew()) {
+			log.info("addPet(pet={}): NIS2-AUDIT: Security events — State change recorded for the audit trail", pet);
 			getPets().add(pet);
+			log.info("addPet(pet={}): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail", pet);
 		}
+		log.info("addPet(pet={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail", pet);
 	}
 
 	/**
@@ -106,6 +119,8 @@ public class Owner extends Person {
 	 * @return the Pet with the given name, or null if no such Pet exists for this Owner
 	 */
 	public Pet getPet(String name) {
+		log.info("getPet(name={}): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail", name);
+		log.info("getPet(name={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail", name);
 		return getPet(name, false);
 	}
 
@@ -123,6 +138,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.info("getPet(id={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail {}", id, id);
 		return null;
 	}
 
@@ -141,6 +157,7 @@ public class Owner extends Person {
 				}
 			}
 		}
+		log.info("getPet(name={}, ignoreNew={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail", name, ignoreNew);
 		return null;
 	}
 
@@ -168,9 +185,13 @@ public class Owner extends Person {
 
 		Pet pet = getPet(petId);
 
+		log.info("addVisit(petId={}, visit={}): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — State change recorded for the audit trail {}", petId, visit, petId);
 		Assert.notNull(pet, "Invalid Pet identifier!");
+		log.info("addVisit(petId={}, visit={}): NIS2-AUDIT: Security events — State change recorded for the audit trail {}", petId, visit, petId);
 
+		log.info("addVisit(petId={}, visit={}): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail {}", petId, visit, petId);
 		pet.addVisit(visit);
+		log.info("addVisit(petId={}, visit={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail {}", petId, visit, petId);
 	}
 
 }

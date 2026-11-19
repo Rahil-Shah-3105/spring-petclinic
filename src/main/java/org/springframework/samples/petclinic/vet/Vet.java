@@ -31,6 +31,8 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import jakarta.xml.bind.annotation.XmlElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing a veterinarian.
@@ -43,6 +45,7 @@ import jakarta.xml.bind.annotation.XmlElement;
 @Entity
 @Table(name = "vets")
 public class Vet extends Person {
+private static final Logger log = LoggerFactory.getLogger(Vet.class);
 
 	@ManyToMany(fetch = FetchType.EAGER)
 	@JoinTable(name = "vet_specialties", joinColumns = @JoinColumn(name = "vet_id"),
@@ -51,6 +54,10 @@ public class Vet extends Person {
 
 	protected Set<Specialty> getSpecialtiesInternal() {
 		if (this.specialties == null) {
+			log.info("getSpecialtiesInternal(): NIS2-AUDIT [Art. 21(2)(d)]: Supply chain — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): NIS2-AUDIT: Security events — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail");
+			log.info("getSpecialtiesInternal(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail");
 			this.specialties = new HashSet<>();
 		}
 		return this.specialties;
@@ -58,6 +65,8 @@ public class Vet extends Person {
 
 	@XmlElement
 	public List<Specialty> getSpecialties() {
+		log.info("getSpecialties(): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — Record access recorded for the audit trail");
+		log.info("getSpecialties(): NIS2-AUDIT [Art. 20]: Governance — Record access recorded for the audit trail");
 		return getSpecialtiesInternal().stream()
 			.sorted(Comparator.comparing(NamedEntity::getName))
 			.collect(Collectors.toList());
@@ -68,7 +77,9 @@ public class Vet extends Person {
 	}
 
 	public void addSpecialty(Specialty specialty) {
+		log.info("addSpecialty(specialty={}): NIS2-AUDIT [Art. 21(2)(c)]: Business continuity — State change recorded for the audit trail", specialty);
 		getSpecialtiesInternal().add(specialty);
+		log.info("addSpecialty(specialty={}): NIS2-AUDIT [Art. 20]: Governance — State change recorded for the audit trail", specialty);
 	}
 
 }
