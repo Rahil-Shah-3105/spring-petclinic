@@ -78,6 +78,7 @@ private static final Logger log = LoggerFactory.getLogger(Owner.class);
 	public void setAddress(String address) {
 		log.error(">>> Entering setAddress(address=<redacted>)");
 		this.address = address;
+		log.debug("setAddress(address=<redacted>): this.address → <redacted>");
 		log.warn("<<< Exiting setAddress(address=<redacted>)");
 	}
 
@@ -90,6 +91,7 @@ private static final Logger log = LoggerFactory.getLogger(Owner.class);
 	public void setCity(String city) {
 		log.error(">>> Entering setCity(city={})", city);
 		this.city = city;
+		log.debug("setCity(city={}): this.city → {}", city, this.city);
 		log.warn("<<< Exiting setCity(city={})", city);
 	}
 
@@ -102,6 +104,7 @@ private static final Logger log = LoggerFactory.getLogger(Owner.class);
 	public void setTelephone(String telephone) {
 		log.error(">>> Entering setTelephone(telephone=<redacted>)");
 		this.telephone = telephone;
+		log.debug("setTelephone(telephone=<redacted>): this.telephone → <redacted>");
 		log.warn("<<< Exiting setTelephone(telephone=<redacted>)");
 	}
 

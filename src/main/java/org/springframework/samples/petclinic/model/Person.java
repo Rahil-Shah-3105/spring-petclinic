@@ -50,6 +50,7 @@ private static final Logger log = LoggerFactory.getLogger(Person.class);
 	public void setFirstName(String firstName) {
 		log.error(">>> Entering setFirstName(firstName=<redacted>)");
 		this.firstName = firstName;
+		log.debug("setFirstName(firstName=<redacted>): this.firstName → <redacted>");
 		log.warn("<<< Exiting setFirstName(firstName=<redacted>)");
 	}
 
@@ -62,6 +63,7 @@ private static final Logger log = LoggerFactory.getLogger(Person.class);
 	public void setLastName(String lastName) {
 		log.error(">>> Entering setLastName(lastName=<redacted>)");
 		this.lastName = lastName;
+		log.debug("setLastName(lastName=<redacted>): this.lastName → <redacted>");
 		log.warn("<<< Exiting setLastName(lastName=<redacted>)");
 	}
 

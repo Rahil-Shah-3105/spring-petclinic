@@ -46,6 +46,7 @@ private static final Logger log = LoggerFactory.getLogger(NamedEntity.class);
 	public void setName(String name) {
 		log.error(">>> Entering setName(name={})", name);
 		this.name = name;
+		log.debug("setName(name={}): this.name → {}", name, this.name);
 		log.warn("<<< Exiting setName(name={})", name);
 	}
 

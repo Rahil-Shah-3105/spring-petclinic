@@ -64,6 +64,7 @@ private static final Logger log = LoggerFactory.getLogger(Pet.class);
 	public void setBirthDate(LocalDate birthDate) {
 		log.error(">>> Entering setBirthDate(birthDate=<redacted>)");
 		this.birthDate = birthDate;
+		log.debug("setBirthDate(birthDate=<redacted>): this.birthDate → <redacted>");
 		log.warn("<<< Exiting setBirthDate(birthDate=<redacted>)");
 	}
 
@@ -82,6 +83,7 @@ private static final Logger log = LoggerFactory.getLogger(Pet.class);
 	public void setType(PetType type) {
 		log.error(">>> Entering setType(type={})", type);
 		this.type = type;
+		log.debug("setType(type={}): this.type → {}", type, this.type);
 		log.warn("<<< Exiting setType(type={})", type);
 	}
 

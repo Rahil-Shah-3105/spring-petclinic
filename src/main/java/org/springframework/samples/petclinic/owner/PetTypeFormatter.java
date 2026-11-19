@@ -44,6 +44,7 @@ private static final Logger log = LoggerFactory.getLogger(PetTypeFormatter.class
 	public PetTypeFormatter(PetTypeRepository types) {
 		log.error(">>> Entering PetTypeFormatter(types={})", types);
 		this.types = types;
+		log.debug("PetTypeFormatter(types={}): this.types → {}", types, this.types);
 		log.warn("<<< Exiting PetTypeFormatter(types={})", types);
 	}
 

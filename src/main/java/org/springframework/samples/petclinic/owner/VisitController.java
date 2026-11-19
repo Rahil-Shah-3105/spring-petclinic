@@ -50,6 +50,7 @@ private static final Logger log = LoggerFactory.getLogger(VisitController.class)
 	public VisitController(OwnerRepository owners) {
 		log.error(">>> Entering VisitController(owners={})", owners);
 		this.owners = owners;
+		log.debug("VisitController(owners={}): this.owners → {}", owners, this.owners);
 		log.warn("<<< Exiting VisitController(owners={})", owners);
 	}
 

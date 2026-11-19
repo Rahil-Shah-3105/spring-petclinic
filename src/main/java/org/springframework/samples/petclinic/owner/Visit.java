@@ -51,6 +51,7 @@ private static final Logger log = LoggerFactory.getLogger(Visit.class);
 	public Visit() {
 		log.error(">>> Entering Visit()");
 		this.date = LocalDate.now().plusDays(1);
+		log.debug("Visit(): date → {}", date);
 		log.warn("<<< Exiting Visit()");
 	}
 
@@ -63,6 +64,7 @@ private static final Logger log = LoggerFactory.getLogger(Visit.class);
 	public void setDate(LocalDate date) {
 		log.error(">>> Entering setDate(date={})", date);
 		this.date = date;
+		log.debug("setDate(date={}): this.date → {}", date, this.date);
 		log.warn("<<< Exiting setDate(date={})", date);
 	}
 
@@ -75,6 +77,7 @@ private static final Logger log = LoggerFactory.getLogger(Visit.class);
 	public void setDescription(String description) {
 		log.error(">>> Entering setDescription(description={})", description);
 		this.description = description;
+		log.debug("setDescription(description={}): this.description → {}", description, this.description);
 		log.warn("<<< Exiting setDescription(description={})", description);
 	}
 

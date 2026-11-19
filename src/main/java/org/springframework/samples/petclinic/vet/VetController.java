@@ -43,6 +43,7 @@ private static final Logger log = LoggerFactory.getLogger(VetController.class);
 	public VetController(VetRepository vetRepository) {
 		log.error(">>> Entering VetController(vetRepository={})", vetRepository);
 		this.vetRepository = vetRepository;
+		log.debug("VetController(vetRepository={}): this.vetRepository → {}", vetRepository, this.vetRepository);
 		log.warn("<<< Exiting VetController(vetRepository={})", vetRepository);
 	}
 

@@ -48,6 +48,7 @@ private static final Logger log = LoggerFactory.getLogger(BaseEntity.class);
 	public void setId(Integer id) {
 		log.error(">>> Entering setId(id={})", id);
 		this.id = id;
+		log.debug("setId(id={}): this.id → {}", id, this.id);
 		log.warn("<<< Exiting setId(id={})", id);
 	}
 
