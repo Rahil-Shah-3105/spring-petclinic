@@ -19,6 +19,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple JavaBean domain object representing an person.
@@ -27,6 +29,7 @@ import jakarta.validation.constraints.Size;
  */
 @MappedSuperclass
 public class Person extends BaseEntity {
+private static final Logger log = LoggerFactory.getLogger(Person.class);
 
 	@Column(length = 30)
 	@Size(max = 30)
@@ -39,18 +42,24 @@ public class Person extends BaseEntity {
 	private String lastName;
 
 	public String getFirstName() {
+		log.info("getFirstName(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
 		return this.firstName;
 	}
 
 	public void setFirstName(String firstName) {
+		log.info("setFirstName(firstName=<redacted>): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+		log.info("setFirstName(firstName=<redacted>): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
 		this.firstName = firstName;
 	}
 
 	public String getLastName() {
+		log.info("getLastName(): M2614-AUDIT: Log Management / data protection — Log management recorded for the audit trail");
 		return this.lastName;
 	}
 
 	public void setLastName(String lastName) {
+		log.info("setLastName(lastName=<redacted>): M2614-AUDIT: Activity-Based Outcomes 1-11 — State change recorded for the audit trail");
+		log.info("setLastName(lastName=<redacted>): M2614-AUDIT: Log integrity (encrypt + validate) — State change recorded for the audit trail");
 		this.lastName = lastName;
 	}
 
