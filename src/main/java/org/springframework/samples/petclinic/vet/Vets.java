@@ -20,6 +20,8 @@ import java.util.List;
 
 import jakarta.xml.bind.annotation.XmlElement;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Simple domain object representing a list of veterinarians. Mostly here to be used for
@@ -29,6 +31,7 @@ import jakarta.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class Vets {
+private static final Logger log = LoggerFactory.getLogger(Vets.class);
 
 	private List<Vet> vets;
 
@@ -36,6 +39,9 @@ public class Vets {
 	public List<Vet> getVetList() {
 		if (vets == null) {
 			vets = new ArrayList<>();
+			log.info("getVetList(): ISO42001-AUDIT: Lifecycle — Record access recorded for the audit trail");
+			log.info("getVetList(): ISO42001-AUDIT [A.7]: Data governance — Record access recorded for the audit trail");
+			log.info("getVetList(): ISO42001-AUDIT: Ai governance — Record access recorded for the audit trail");
 		}
 		return vets;
 	}

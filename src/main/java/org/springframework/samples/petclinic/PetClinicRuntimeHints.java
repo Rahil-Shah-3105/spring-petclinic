@@ -21,8 +21,11 @@ import org.springframework.aot.hint.RuntimeHintsRegistrar;
 import org.springframework.samples.petclinic.model.BaseEntity;
 import org.springframework.samples.petclinic.model.Person;
 import org.springframework.samples.petclinic.vet.Vet;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
+private static final Logger log = LoggerFactory.getLogger(PetClinicRuntimeHints.class);
 
 	@Override
 	public void registerHints(RuntimeHints hints, ClassLoader classLoader) {
@@ -31,8 +34,11 @@ public class PetClinicRuntimeHints implements RuntimeHintsRegistrar {
 		hints.resources().registerPattern("messages/*");
 		hints.resources().registerPattern("mysql-default-conf");
 		hints.reflection().registerType(BaseEntity.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO42001-AUDIT: Lifecycle — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(Person.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO42001-AUDIT [A.7]: Data governance — State change recorded for the audit trail", hints, classLoader);
 		hints.reflection().registerType(Vet.class, typeHint -> typeHint.withJavaSerialization(true));
+		log.info("registerHints(hints={}, classLoader={}): ISO42001-AUDIT: Ai governance — State change recorded for the audit trail", hints, classLoader);
 	}
 
 }
